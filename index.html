@@ -3,1712 +3,738 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>OnTime — Интерактивная презентация проекта</title>
+<title>OnTime — детали платформы</title>
+<meta name="description" content="OnTime: онлайн-запись для бизнеса в Беларуси. Google Calendar, Telegram, Email, сценарии и AI-администратор — в деталях.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #fdfcfc;
   --tp: #f5f3f1;
   --line: #ebe8e4;
-  --ink: #000000;
+  --ink: #000;
   --mut: #777169;
   --teal: #3a9ba0;
   --teal-d: #1f6b71;
-  --coral: #e0856a;
-  --coral-l: #f7e3dc;
   --teal-l: #dcefef;
-  --card-sh: 0 0 1px rgba(0,0,0,.35), 0 12px 32px rgba(0,0,0,.04);
+  --coral: #e0856a;
+  --coral-d: #a4482c;
+  --coral-l: #f7e3dc;
+  --card: #fff;
+  --sh: 0 0 1px rgba(0,0,0,.35), 0 12px 32px rgba(0,0,0,.04);
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --ease: cubic-bezier(.2,.7,.2,1);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+html, body { height: 100%; }
+body {
   background: var(--bg);
   color: var(--ink);
-  font: 400 16px/1.5 'Inter', system-ui, -apple-system, sans-serif;
+  font: 400 16px/1.5 Inter, system-ui, -apple-system, sans-serif;
   letter-spacing: .01em;
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
 }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
 
-/* Three.js Background Canvas */
-#orb-canvas {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.85;
-  transition: opacity .6s ease;
-}
-
-/* Top Navigation Bar */
+/* Chrome */
 .topbar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 64px;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  background: rgba(253, 252, 252, 0.82);
-  backdrop-filter: blur(12px);
+  position: fixed; inset: 0 0 auto 0; height: 60px; z-index: 50;
+  display: flex; align-items: center; gap: 20px; padding: 0 28px;
+  background: rgba(253,252,252,.86); backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
-.logo {
-  font-weight: 700;
-  font-size: 24px;
-  letter-spacing: -.02em;
-  color: var(--teal);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  user-select: none;
-}
+.logo { font-weight: 700; font-size: 22px; letter-spacing: -.02em; color: var(--teal); text-decoration: none; }
 .logo b { color: var(--ink); }
-.logo-pill {
-  font: 500 11px 'Inter', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--teal-l);
-  color: var(--teal-d);
-}
-.nav-dots {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.dot {
-  width: 24px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--line);
-  border: 0;
-  cursor: pointer;
-  transition: all .3s cubic-bezier(.2,.7,.2,1);
-  position: relative;
-}
+.crumb { font-size: 13px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dots { margin-left: auto; display: flex; gap: 5px; }
+.dot { width: 18px; height: 5px; border: 0; border-radius: 9px; background: var(--line); cursor: pointer; transition: all .3s var(--ease); }
 .dot:hover { background: #d0cbc4; }
-.dot.active {
-  width: 42px;
-  background: var(--teal);
-}
-.dot[data-title]:hover::after {
-  content: attr(data-title);
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--ink);
-  color: #fff;
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-}
-.top-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.dot.on { width: 36px; background: var(--teal); }
+.counter { font: 500 12px var(--mono); color: var(--mut); min-width: 56px; text-align: right; }
 
-/* Buttons & Badges */
+.bottombar {
+  position: fixed; inset: auto 0 0 0; height: 56px; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 28px;
+  font-size: 12px; color: var(--mut); background: var(--bg);
+}
+.progress { position: fixed; left: 0; bottom: 0; height: 3px; background: var(--teal); transition: width .5s var(--ease); z-index: 51; }
+.nav-btns { display: flex; gap: 8px; }
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 1px solid var(--line);
-  background: var(--bg);
-  color: var(--ink);
-  font: 500 13px 'Inter', sans-serif;
-  padding: 9px 16px;
-  border-radius: 9999px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all .2s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--line); background: var(--bg);
+  font: 500 13px Inter, sans-serif; padding: 8px 16px; border-radius: 999px;
+  cursor: pointer; text-decoration: none; transition: background .2s, border-color .2s;
 }
 .btn:hover { background: var(--tp); border-color: #d5d0c9; }
+.btn:disabled { opacity: .35; cursor: default; }
 .btn.k { background: var(--ink); color: #fff; border-color: var(--ink); }
 .btn.k:hover { background: #222; }
-.btn.teal { background: var(--teal); color: #fff; border-color: var(--teal); }
-.btn.teal:hover { background: var(--teal-d); }
+.btn:focus-visible, .dot:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--teal-d);
-  margin-bottom: 14px;
-}
-.eyebrow::before {
-  content: '';
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--teal);
-}
-.eyebrow.coral { color: #a4482c; }
-.eyebrow.coral::before { background: var(--coral); }
+/* Orb: one WebGL sphere that flies to the .slot of the open slide */
+#orb { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 40; pointer-events: none; }
+.slot { width: var(--s, 48px); height: var(--s, 48px); max-width: 100%; flex: none; border-radius: 50%; }
+.no-gl .slot { background: radial-gradient(circle at 30% 30%, #f0947a, transparent 55%), radial-gradient(circle at 60% 60%, #3a9ba0, #1f6b71); }
+.kick { display: flex; align-items: center; gap: 24px; margin-bottom: 18px; }
+.kick .slot { --s: 56px; }
+.kick .eyebrow { margin: 0; }
 
-/* Slide Deck Container */
-.deck {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  z-index: 5;
-}
+/* Slides */
 .slide {
-  position: absolute;
-  inset: 64px 0 56px 0;
-  padding: 28px 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(28px) scale(0.985);
-  transition: opacity .65s cubic-bezier(.2,.7,.2,1), transform .65s cubic-bezier(.2,.7,.2,1);
-  overflow-y: auto;
+  position: fixed; inset: 60px 0 56px 0; padding: 24px 56px;
+  display: flex; overflow-y: auto; overflow-x: hidden;
+  opacity: 0; visibility: hidden; transform: translateY(24px);
+  transition: opacity .55s var(--ease), transform .55s var(--ease), visibility 0s .55s;
 }
-.slide.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
-}
-.slide.prev {
-  transform: translateY(-28px) scale(0.985);
-}
-.slide-inner {
-  width: 100%;
-  max-width: 1240px;
-  margin: auto;
-}
+.slide.on { opacity: 1; visibility: visible; transform: none; transition: opacity .55s var(--ease), transform .55s var(--ease); }
+.slide.past { transform: translateY(-24px); }
+.inner { width: 100%; max-width: 1220px; margin: auto; min-width: 0; }
+.inner > *, .split > *, .rise > * { min-width: 0; }
+.rise > * { opacity: 0; transform: translateY(14px); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.slide.on .rise > * { opacity: 1; transform: none; }
+.slide.on .rise > *:nth-child(2) { transition-delay: .07s; }
+.slide.on .rise > *:nth-child(3) { transition-delay: .14s; }
+.slide.on .rise > *:nth-child(4) { transition-delay: .21s; }
+.slide.on .rise > *:nth-child(5) { transition-delay: .28s; }
+.slide.on .rise > *:nth-child(6) { transition-delay: .35s; }
 
-/* Staggered Reveal Children inside Active Slide */
-.stagger > * {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity .55s cubic-bezier(.2,.7,.2,1), transform .55s cubic-bezier(.2,.7,.2,1);
-}
-.slide.active .stagger > * {
-  opacity: 1;
-  transform: translateY(0);
-}
-.slide.active .stagger > *:nth-child(1) { transition-delay: .06s; }
-.slide.active .stagger > *:nth-child(2) { transition-delay: .14s; }
-.slide.active .stagger > *:nth-child(3) { transition-delay: .22s; }
-.slide.active .stagger > *:nth-child(4) { transition-delay: .30s; }
-.slide.active .stagger > *:nth-child(5) { transition-delay: .38s; }
-
-/* Typography */
-h1, h2, h3 {
-  font-weight: 300;
-  letter-spacing: -.025em;
-  line-height: 1.08;
-}
-h1 { font-size: clamp(38px, 5vw, 68px); }
-h2 { font-size: clamp(28px, 3.4vw, 44px); }
-h3 { font-size: 20px; font-weight: 500; letter-spacing: -.01em; }
+/* Type */
+h1, h2 { font-weight: 300; letter-spacing: -.025em; line-height: 1.07; }
+h1 { font-size: clamp(40px, 5.6vw, 76px); }
+h2 { font-size: clamp(28px, 3.3vw, 44px); margin-bottom: 14px; }
+h3 { font-size: 17px; font-weight: 500; letter-spacing: -.005em; margin-bottom: 6px; }
 p { color: var(--mut); }
-.lead { font-size: clamp(16px, 1.5vw, 20px); line-height: 1.45; max-width: 580px; }
+.lead { font-size: clamp(16px, 1.4vw, 19px); line-height: 1.5; max-width: 600px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--teal-d);
+}
+.eyebrow .n { font-family: var(--mono); letter-spacing: 0; color: var(--mut); }
+.eyebrow.coral { color: var(--coral-d); }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; color: var(--teal-d); white-space: nowrap; }
+.src { font-size: 12px; color: var(--mut); margin-top: 18px; }
+.lbl { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--mut); font-weight: 600; margin-bottom: 6px; }
 
-/* Layouts & Cards */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
-.grid-2-asym { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 32px; align-items: center; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+/* Layout */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.split.wide-r { grid-template-columns: .9fr 1.1fr; }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 22px; box-shadow: var(--sh); }
+.card p { font-size: 14px; line-height: 1.5; }
+.card.tint { background: var(--teal-l); border-color: transparent; box-shadow: none; }
+.num { font: 500 12px var(--mono); color: var(--teal-d); margin-bottom: 10px; display: block; }
 
-.card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: var(--card-sh);
-  transition: transform .25s ease, border-color .25s ease;
-}
-.card:hover { border-color: #d5cfc7; }
-.card.soft { background: var(--tp); box-shadow: none; }
-.card.dark { background: var(--ink); color: #fff; border-color: #222; }
-.card.dark p { color: #bdb7ae; }
-.card.teal-tint { background: var(--teal-l); border-color: #bce0e0; }
-.card.coral-tint { background: var(--coral-l); border-color: #f0cdc1; }
+/* Fact list: the details */
+.facts { list-style: none; margin-top: 22px; display: grid; gap: 2px; }
+.facts li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 14.5px; color: #2b2925; }
+.facts li:last-child { border-bottom: 1px solid var(--line); }
+.facts li::before { content: '→'; color: var(--teal); font-weight: 600; }
+.facts b { font-weight: 600; }
 
-/* Website Photo / Screenshot Slot Component */
-.browser-frame {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  box-shadow: 0 16px 40px rgba(0,0,0,.07), 0 0 1px rgba(0,0,0,.25);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.browser-bar {
-  height: 36px;
-  background: var(--tp);
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  gap: 12px;
-}
-.browser-dots {
-  display: flex;
-  gap: 6px;
-}
-.browser-dots i {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: #dcd7d0;
-  display: block;
-}
-.browser-dots i:nth-child(1) { background: #e0856a; }
-.browser-dots i:nth-child(2) { background: #e6b86a; }
-.browser-dots i:nth-child(3) { background: #3a9ba0; }
-.browser-url {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  font-size: 11px;
-  color: var(--mut);
-}
+/* Pills / chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 12.5px; padding: 5px 11px; border-radius: 999px; background: var(--tp); border: 1px solid var(--line); white-space: nowrap; }
+.chip.t { background: var(--teal-l); border-color: transparent; color: var(--teal-d); }
+.chip.c { background: var(--coral-l); border-color: transparent; color: var(--coral-d); }
+.chip.k { background: var(--ink); border-color: var(--ink); color: #fff; }
 
-.photo-slot {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  background: linear-gradient(135deg, #f8f6f4 0%, #eef7f7 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 24px;
-  cursor: pointer;
-  overflow: hidden;
-  transition: background .25s ease, border-color .25s ease;
-}
-.photo-slot.portrait { aspect-ratio: 4 / 4.3; }
-.photo-slot.tall { aspect-ratio: 9 / 14; }
-.photo-slot:hover {
-  background: linear-gradient(135deg, #f2efec 0%, #e1f2f2 100%);
-}
-.photo-slot.dragover {
-  outline: 2px dashed var(--teal);
-  outline-offset: -8px;
-  background: var(--teal-l);
-}
-.photo-slot img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 2;
-  display: none;
-}
-.photo-slot.has-image img { display: block; }
-.photo-slot .slot-placeholder {
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  max-width: 280px;
-}
-.slot-icon {
-  width: 44px; height: 44px;
-  border-radius: 14px;
-  background: #fff;
-  border: 1px dashed var(--teal);
-  color: var(--teal-d);
-  display: grid;
-  place-items: center;
-  font-size: 20px;
-  box-shadow: 0 4px 12px rgba(58,155,160,.12);
-}
-.slot-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink);
-}
-.slot-sub {
-  font-size: 12px;
-  color: var(--mut);
-  line-height: 1.35;
-}
-.photo-slot .slot-change-badge {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  z-index: 3;
-  background: rgba(0,0,0,.75);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 999px;
-  opacity: 0;
-  transition: opacity .2s;
-}
-.photo-slot.has-image:hover .slot-change-badge { opacity: 1; }
+/* Mock window */
+.mock { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 0 1px rgba(0,0,0,.3), 0 24px 60px rgba(0,0,0,.07); overflow: hidden; }
+.mock-bar { display: flex; align-items: center; gap: 6px; padding: 11px 14px; border-bottom: 1px solid var(--line); background: var(--tp); }
+.mock-bar i { width: 9px; height: 9px; border-radius: 50%; background: #dcd7d1; }
+.mock-bar span { margin-left: 10px; font: 400 11.5px var(--mono); color: var(--mut); }
+.mock-body { padding: 18px; overflow-x: auto; }
 
-/* Pills & Tags */
-.pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
-.pill {
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid var(--line);
-  font-size: 14px;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.pill i {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--teal);
-}
+/* Cover */
+.hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 20px; align-items: center; }
+.hero .slot { --s: min(520px, 40vw); justify-self: center; }
+.hero-kicker { display: block; font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--teal-d); margin-bottom: 18px; }
+.hero p.lead { font-size: 20px; line-height: 1.4; max-width: 540px; margin: 24px 0 32px; }
+.hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.hero-actions .btn { padding: 11px 20px; font-size: 14px; }
+.cover-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 36px; font-size: 13px; color: var(--mut); }
+.cover-meta span::before { content: '✓ '; color: var(--teal-d); }
 
-/* Big Stat Numbers */
-.big-stat {
-  font-size: clamp(48px, 6vw, 82px);
-  font-weight: 300;
-  letter-spacing: -.03em;
-  line-height: 1;
-  color: var(--coral);
-  margin: 8px 0 12px;
-}
-.big-stat.teal { color: var(--teal); }
-.big-stat.ink { color: var(--ink); }
+/* Architecture diagram */
+.arch { display: grid; grid-template-columns: 1fr 64px 1.15fr 64px 1fr; align-items: stretch; margin-top: 26px; }
+.arch .col { display: grid; gap: 10px; align-content: center; }
+.node { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 14px; box-shadow: var(--sh); }
+.node small { display: block; font-size: 12px; color: var(--mut); margin-top: 2px; }
+.core { background: var(--ink); color: #fff; border-radius: 20px; padding: 20px; display: grid; gap: 10px; align-content: center; }
+.core .logo { font-size: 26px; }
+.core .logo b { color: #fff; }
+.core .row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,.08); }
+.core .row span:last-child { font-family: var(--mono); color: #9fd3d5; font-size: 12px; }
+.arrow { display: grid; place-items: center; color: var(--teal); }
+.arrow svg { width: 100%; height: 24px; }
 
-/* Competitor Table */
-.comp-table {
-  display: grid;
-  gap: 12px;
-  margin-top: 20px;
-}
-.comp-row {
-  display: grid;
-  grid-template-columns: 180px 1.2fr 1fr;
-  gap: 20px;
-  align-items: center;
-  padding: 20px 26px;
-  border-radius: 20px;
-  background: #fff;
-  border: 1px solid var(--line);
-  transition: transform .25s ease, box-shadow .25s ease;
-}
-.comp-row:hover { transform: translateX(4px); }
-.comp-row.head {
-  background: transparent;
-  border: 0;
-  padding: 0 26px 4px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  color: var(--mut);
-}
-.comp-row.ontime {
-  background: linear-gradient(90deg, var(--teal-l) 0%, #ffffff 100%);
-  border: 1.5px solid var(--teal);
-  box-shadow: 0 10px 28px rgba(58,155,160,.12);
-}
+/* Booking mock */
+.steps { display: flex; gap: 6px; margin-bottom: 16px; }
+.steps span { flex: 1; font-size: 11.5px; text-align: center; padding: 6px 0; border-radius: 8px; background: var(--tp); color: var(--mut); }
+.steps span.done { background: var(--teal-l); color: var(--teal-d); }
+.steps span.cur { background: var(--ink); color: #fff; }
+.svc { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 14px; }
+.svc b { font-weight: 500; }
+.svc span { font-size: 13px; color: var(--mut); }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+.days div { text-align: center; padding: 7px 0; border-radius: 10px; font-size: 12px; border: 1px solid var(--line); color: var(--mut); }
+.days div b { display: block; font-size: 15px; color: var(--ink); font-weight: 500; }
+.days div.sel { background: var(--ink); border-color: var(--ink); color: #bbb; }
+.days div.sel b { color: #fff; }
+.slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.slots span { font: 500 13px var(--mono); text-align: center; padding: 8px 0; border-radius: 9px; border: 1px solid var(--line); }
+.slots span.x { color: #c9c4be; text-decoration: line-through; background: var(--tp); }
+.slots span.sel { background: var(--teal); color: #fff; border-color: var(--teal); }
+.taken { margin-top: 12px; font-size: 12.5px; padding: 9px 12px; border-radius: 10px; background: var(--coral-l); color: var(--coral-d); }
+.sql { font: 400 12px/1.7 var(--mono); background: #111; color: #d7d3cd; border-radius: 12px; padding: 12px 16px; margin-top: 12px; overflow-x: auto; }
+.sql .k { color: #8fd1d3; }
+.sql .c { color: #8a847c; }
+.sql .s { color: #f0a58c; }
 
-/* Fintech Flow Animation */
-.fintech-flow {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  gap: 14px;
-  align-items: center;
-  margin-top: 24px;
-}
-.flow-arrow {
-  font-size: 22px;
-  color: var(--teal);
-  font-weight: 600;
-  transition: transform .4s ease;
-}
-.fintech-flow.pulsing .flow-arrow {
-  transform: scale(1.35) translateX(4px);
-  color: var(--coral);
-}
+/* Calendar */
+.cal { display: grid; grid-template-columns: 44px repeat(3, 1fr); font-size: 12px; min-width: 420px; }
+.cal .hd { padding: 6px 8px; font-weight: 600; border-bottom: 1px solid var(--line); }
+.cal .t { color: var(--mut); font: 400 11px var(--mono); padding-top: 2px; height: 46px; border-top: 1px solid var(--line); }
+.cal .cell { position: relative; border-top: 1px solid var(--line); border-left: 1px solid var(--line); height: 46px; }
+.cal .work { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, transparent 0 6px, rgba(58,155,160,.07) 6px 12px); }
+.ev { position: absolute; left: 3px; right: 3px; border-radius: 7px; padding: 4px 7px; font-size: 11.5px; line-height: 1.3; z-index: 2; overflow: hidden; }
+.ev.r { background: var(--teal); color: #fff; }
+.ev.p { background: #e9e5e0; color: #4c4842; border: 1px dashed #b8b1a8; }
+.ev.cf { background: var(--coral); color: #fff; box-shadow: 0 0 0 2px var(--coral-l); }
+table.sync { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.sync td { padding: 9px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+table.sync td:first-child { color: var(--mut); width: 46%; }
+table.sync tr:last-child td { border-bottom: 1px solid var(--line); }
 
-/* Showcase Tabs (Slide 6) */
-.tab-bar {
-  display: inline-flex;
-  background: var(--tp);
-  padding: 5px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  gap: 4px;
-  margin-bottom: 18px;
-}
-.tab-btn {
-  border: 0;
-  background: transparent;
-  padding: 8px 18px;
-  border-radius: 999px;
-  font: 500 13px 'Inter', sans-serif;
-  color: var(--mut);
-  cursor: pointer;
-  transition: .2s;
-}
-.tab-btn.active {
-  background: var(--ink);
-  color: #fff;
-}
+/* Workflow canvas */
+.canvas { background-color: var(--card); background-image: radial-gradient(#e2ddd7 1px, transparent 1px); background-size: 16px 16px; padding: 22px; display: grid; justify-items: center; }
+.wf { width: min(320px, 100%); border-radius: 14px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--sh); padding: 10px 14px; font-size: 13.5px; }
+.wf small { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mut); font-weight: 600; margin-bottom: 2px; }
+.wf.trig { border-left: 4px solid var(--teal); }
+.wf.logic { border-left: 4px solid #b8b1a8; }
+.wf.act { border-left: 4px solid var(--coral); }
+.wf .tpl { font: 400 11.5px/1.5 var(--mono); color: var(--teal-d); margin-top: 4px; background: var(--tp); border-radius: 7px; padding: 6px 8px; }
+.link { width: 2px; height: 18px; background: #cfc9c2; }
+.branch { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+.branch > div { display: grid; justify-items: center; }
+.branch .tag { font: 500 11px var(--mono); color: var(--mut); margin-bottom: 4px; }
 
-/* Bottom Footer Controls */
-.bottombar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 56px;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  background: rgba(253, 252, 252, 0.86);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid var(--line);
-  font-size: 13px;
-  color: var(--mut);
-}
-.progress-track {
-  position: absolute;
-  top: -2px; left: 0; right: 0;
-  height: 3px;
-  background: transparent;
-}
-.progress-fill {
-  height: 100%;
-  width: 8%;
-  background: linear-gradient(90deg, var(--teal), var(--coral));
-  transition: width .4s cubic-bezier(.2,.7,.2,1);
-}
+/* Template table */
+table.tpl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.tpl th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mut); font-weight: 600; padding: 0 10px 8px; }
+table.tpl td { padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+table.tpl td:last-child { color: var(--mut); font-size: 13px; }
+table.tpl tr.off td:first-child::after { content: 'выкл.'; margin-left: 8px; font-size: 10.5px; padding: 2px 7px; border-radius: 999px; background: var(--coral-l); color: var(--coral-d); }
 
-/* Overview Grid Modal */
-.overview-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(253, 252, 252, 0.96);
-  backdrop-filter: blur(16px);
-  padding: 80px 48px 48px;
-  overflow-y: auto;
-  display: none;
-}
-.overview-modal.open { display: block; }
-.overview-grid {
-  max-width: 1200px;
-  margin: 24px auto 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
-}
-.ov-card {
-  padding: 20px;
-  border-radius: 18px;
-  border: 1px solid var(--line);
-  background: #fff;
-  cursor: pointer;
-  transition: .2s;
-}
-.ov-card:hover, .ov-card.active {
-  border-color: var(--teal);
-  background: var(--teal-l);
-  transform: translateY(-3px);
-}
-.ov-num { font-size: 12px; font-weight: 600; color: var(--teal-d); }
-.ov-title { font-size: 16px; font-weight: 500; margin-top: 6px; color: var(--ink); }
+/* Flow steps */
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; counter-reset: f; }
+.flow .card::before { counter-increment: f; content: '0' counter(f); font: 500 12px var(--mono); color: var(--teal-d); display: block; margin-bottom: 10px; }
 
-input[type="range"] {
-  width: 100%;
-  accent-color: var(--teal-d);
-  cursor: pointer;
-}
+/* Chat */
+.chat { display: grid; gap: 8px; }
+.msg { max-width: 84%; padding: 10px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.45; }
+.msg.u { justify-self: end; background: var(--ink); color: #fff; border-bottom-right-radius: 5px; }
+.msg.a { background: var(--tp); border-bottom-left-radius: 5px; }
+.tool { justify-self: start; font: 400 11.5px var(--mono); color: var(--teal-d); background: var(--teal-l); border-radius: 8px; padding: 4px 9px; }
+.voice { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.voice div { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--card); }
+.voice b { display: block; font-weight: 300; font-size: 30px; letter-spacing: -.02em; line-height: 1.1; }
+.voice small { font-size: 12px; color: var(--mut); }
 
-/* Differentiators: "у конкурентов" vs "в OnTime" */
-.diff-card { display: flex; flex-direction: column; gap: 14px; padding: 24px; }
-.diff-head { display: flex; align-items: center; gap: 12px; }
-.diff-icon {
-  width: 44px; height: 44px; flex: none;
-  border-radius: 14px;
-  display: grid; place-items: center;
-  font-size: 20px; font-weight: 600;
-  background: var(--teal-l); color: var(--teal-d);
-}
-.diff-icon.coral { background: var(--coral-l); color: #a4482c; }
-.diff-icon.ink { background: var(--ink); color: #fff; }
-.vs-old {
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: var(--tp);
-  font-size: 13px;
-  line-height: 1.4;
-  color: var(--mut);
-}
-.vs-old b { display: block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #a4482c; margin-bottom: 3px; }
-.vs-new { display: grid; gap: 8px; list-style: none; }
-.vs-new li { position: relative; padding-left: 24px; font-size: 14px; line-height: 1.4; color: var(--ink); }
-.vs-new li::before {
-  content: '✓';
-  position: absolute; left: 0; top: 1px;
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  background: var(--teal); color: #fff;
-  font-size: 10px; font-weight: 700;
-  display: grid; place-items: center;
-}
-.vs-label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--teal-d); }
-.rival-strip { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-.rival-strip .pill { font-size: 13px; background: rgba(255,255,255,.9); }
-.rival-strip .pill b { font-weight: 600; }
+/* Telegram mock */
+.tg { background: #e6ebee; border-radius: 18px; padding: 14px; display: grid; gap: 8px; }
+.tg-h { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; }
+.tg-h .av { width: 34px; height: 34px; border-radius: 50%; background: var(--teal); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 600; }
+.tg-h b { font-weight: 600; font-size: 14px; }
+.tg-h small { display: block; color: var(--mut); font-size: 12px; }
+.bub { background: #fff; border-radius: 14px 14px 14px 4px; padding: 9px 12px; font-size: 13.5px; max-width: 88%; line-height: 1.45; }
+.bub time { display: block; text-align: right; font-size: 10.5px; color: var(--mut); }
+.bub.me { justify-self: end; background: #d9f2d0; border-radius: 14px 14px 4px 14px; }
+.kb { display: grid; gap: 4px; max-width: 88%; }
+.kb span { text-align: center; font-size: 13px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,.6); color: #2a6f9e; font-weight: 500; }
 
-/* Google Calendar mock */
-.gcal { background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 16px 40px rgba(0,0,0,.07), 0 0 1px rgba(0,0,0,.25); overflow: hidden; }
-.gcal-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--tp); font-size: 13px; }
-.gcal-top b { font-weight: 600; }
-.gcal-cols { display: grid; grid-template-columns: 44px repeat(3, 1fr); }
-.gcal-col-h { padding: 8px 6px; font-size: 11px; font-weight: 600; color: var(--mut); text-align: center; border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); }
-.gcal-time { font-size: 10px; color: var(--mut); text-align: right; padding: 0 6px; height: 46px; border-bottom: 1px solid #f3f1ee; }
-.gcal-cell { position: relative; height: 46px; border-left: 1px solid var(--line); border-bottom: 1px solid #f3f1ee; }
-.gcal-ev {
-  position: absolute; left: 4px; right: 4px; z-index: 1;
-  border-radius: 8px; padding: 5px 7px;
-  font-size: 10.5px; line-height: 1.25; color: #fff; overflow: hidden;
-}
-.gcal-ev b { display: block; font-weight: 600; font-size: 11px; }
-.gcal-ev.t { background: var(--teal); }
-.gcal-ev.c { background: var(--coral); }
-.gcal-ev.k { background: #2b2b2b; }
-.gcal-ev.focus { outline: 2px solid var(--ink); outline-offset: 1px; }
-.gcal-pop {
-  margin: 14px; padding: 14px 16px;
-  border-radius: 16px; border: 1px solid var(--line);
-  box-shadow: 0 10px 28px rgba(0,0,0,.08);
-  background: #fff; font-size: 13px;
-}
-.gcal-pop-row { display: grid; grid-template-columns: 22px 1fr; gap: 8px; padding: 4px 0; color: var(--ink); }
-.gcal-pop-row span:first-child { color: var(--mut); text-align: center; }
+/* Final */
+.final { text-align: center; display: grid; justify-items: center; gap: 18px; }
+.qr { width: 220px; padding: 18px; background: #fff; border-radius: 22px; box-shadow: var(--sh); display: block; transition: transform .2s; }
+.qr:hover { transform: scale(1.03); }
+.qr svg { display: block; width: 100%; height: auto; }
+.url { font: 500 clamp(24px, 3vw, 36px) Inter; letter-spacing: -.02em; color: var(--teal-d); text-decoration: none; border-bottom: 2px solid var(--teal-l); }
+.url:hover { border-color: var(--teal); }
 
-/* Notification matrix + Telegram mock */
-.n-matrix { display: grid; gap: 6px; margin-top: 18px; }
-.n-row { display: grid; grid-template-columns: 1.6fr repeat(3, .6fr); gap: 8px; align-items: center; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,.92); border: 1px solid var(--line); font-size: 14px; }
-.n-row.head { background: transparent; border: 0; padding: 0 14px 2px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--mut); }
-.n-row.hl { background: linear-gradient(90deg, var(--coral-l) 0%, #fff 100%); border: 1.5px solid var(--coral); }
-.n-row > div:not(:first-child) { text-align: center; }
-.n-yes { color: var(--teal-d); font-weight: 700; }
-.n-no { color: #cfc9c1; }
-.tg-phone { max-width: 340px; margin: 0 auto; border-radius: 32px; padding: 10px; background: var(--ink); box-shadow: 0 20px 50px rgba(0,0,0,.15); }
-.tg-screen { border-radius: 24px; overflow: hidden; background: #e8eef0; }
-.tg-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #fff; border-bottom: 1px solid var(--line); }
-.tg-ava { width: 34px; height: 34px; border-radius: 50%; background: var(--teal); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
-.tg-body { display: grid; gap: 8px; padding: 14px 12px 18px; }
-.tg-msg { justify-self: start; max-width: 88%; padding: 9px 12px; border-radius: 14px 14px 14px 4px; background: #fff; font-size: 12.5px; line-height: 1.4; white-space: pre-line; color: var(--ink); box-shadow: 0 1px 1px rgba(0,0,0,.06); }
-.tg-msg small { display: block; text-align: right; font-size: 10px; color: var(--mut); margin-top: 2px; }
-.tg-msg.hot { border: 1.5px solid var(--coral); }
-.tg-btn { margin-top: 6px; padding: 7px; border-radius: 10px; background: var(--teal-l); color: var(--teal-d); text-align: center; font-weight: 600; font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .slide, .rise > * { transition: none !important; } }
 
-@media (max-width: 960px) {
-  .slide { padding: 20px; }
-  .grid-2, .grid-2-asym, .grid-3, .grid-4, .fintech-flow { grid-template-columns: 1fr; }
-  .n-row { grid-template-columns: 1.4fr repeat(3, .5fr); font-size: 12px; padding: 8px 10px; }
-  .comp-row { grid-template-columns: 1fr; gap: 8px; }
-  .comp-row.head { display: none; }
-  .nav-dots { display: none; }
+/* Responsive */
+@media (max-width: 980px) {
+  .split, .split.wide-r, .hero { grid-template-columns: 1fr; gap: 28px; }
+  .hero .slot { --s: min(300px, 70vw); grid-row: 1; }
+  .g4, .flow { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: 1fr 1fr; }
+  .arch { grid-template-columns: 1fr; gap: 10px; }
+  .arch .arrow svg { transform: rotate(90deg); width: 40px; }
+  .crumb, .dots { display: none; }
+  .counter { margin-left: auto; }
+}
+@media (max-width: 640px) {
+  .topbar, .bottombar { padding: 0 16px; }
+  .slide { padding: 18px 16px; }
+  .g3, .g4, .flow, .voice { grid-template-columns: 1fr; }
+  .slots { grid-template-columns: repeat(4, 1fr); }
+  .hint { display: none; }
+  .branch { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 
-<canvas id="orb-canvas" aria-hidden="true"></canvas>
-<input type="file" id="global-file-input" accept="image/*" style="display:none">
+<canvas id="orb" aria-hidden="true"></canvas>
 
-<!-- Верхняя панель навигации -->
 <header class="topbar">
-  <div class="logo" onclick="goToSlide(0)">
-    <span>On<b>Time</b></span>
-    <span class="logo-pill">Pitch Deck 2026</span>
-  </div>
-  <div class="nav-dots" id="nav-dots"></div>
-  <div class="top-actions">
-    <button class="btn" type="button" onclick="toggleOverview()" title="Сетка слайдов (клавиша G)">☷ Слайды</button>
-    <button class="btn" type="button" onclick="clearSavedPhotos()" title="Очистить загруженные фото">↺ Сброс фото</button>
-    <button class="btn k" type="button" onclick="toggleFullScreen()" title="Полный экран (клавиша F)">⛶ Полный экран</button>
-  </div>
+  <a class="logo" href="#1">On<b>Time</b></a>
+  <span class="crumb" id="crumb"></span>
+  <nav class="dots" id="dots" aria-label="Слайды"></nav>
+  <span class="counter" id="counter"></span>
 </header>
 
-<!-- Контейнер слайдов -->
-<main class="deck" id="deck">
+<main id="deck">
 
-  <!-- СЛАЙД 1: ТИТУЛЬНЫЙ + ГЛАВНЫЙ СКРИНШОТ САЙТА -->
-  <section class="slide active" data-title="1. О проекте OnTime" data-orb-x="0.72" data-orb-y="0.5" data-orb-s="260" data-orb-h="0.45">
-    <div class="slide-inner grid-2-asym stagger">
-      <div>
-        <div class="eyebrow">Платформа автоматизации услуг · B2B & B2C</div>
-        <h1>Меняем индустрию коммерческих услуг</h1>
-        <p class="lead" style="margin-top:20px">
-          Первая платформа, которая решает боли не только на стороне бизнеса, но и клиента — от онлайн-записи без звонков до AI-визуализации результата.
-        </p>
-        <div class="pills">
-          <span class="pill"><i></i> Быстро</span>
-          <span class="pill"><i style="background:var(--coral)"></i> Удобно</span>
-          <span class="pill"><i style="background:var(--ink)"></i> Для всех</span>
-        </div>
-        <div style="margin-top:28px; display:flex; gap:12px; flex-wrap:wrap">
-          <button class="btn k" onclick="nextSlide()">Смотреть презентацию →</button>
-        </div>
+<!-- 01 · Cover -->
+<section class="slide" data-title="OnTime">
+  <div class="inner hero">
+    <div class="rise">
+      <span class="hero-kicker">Онлайн-запись для салонов, студий и мастерских</span>
+      <h1>Запись, которая работает сама</h1>
+      <p class="lead">Своя страница записи: клиент сам выбирает услугу, мастера и свободное время. Запись попадает в Google Calendar мастера, напоминания уходят сами, а на вопросы отвечает AI-администратор.</p>
+      <div class="hero-actions"><a class="btn k" href="https://on-time.by" target="_blank" rel="noopener">Попробовать запись</a> <button class="btn" data-go="1">Смотреть детали →</button></div>
+      <div class="cover-meta"><span>Без комиссий с записей</span><span>Telegram и Email</span><span>Google Calendar</span><span>Бесплатный пилот</span></div>
+    </div>
+    <div class="slot" data-k=".9" data-h=".5"></div>
+  </div>
+</section>
+
+<!-- 02 · Problem + how it works -->
+<section class="slide" data-title="Проблема и решение">
+  <div class="inner rise">
+    <div class="kick"><div class="slot" data-k=".5" data-h=".85"></div><div class="eyebrow coral">Проблема и решение</div></div>
+    <h2>Звонки, забытые визиты и накладки — в один центр</h2>
+    <p class="lead">Запись по телефону возможна, только пока кто-то берёт трубку. Напоминания пишут вручную, расписание расходится между тетрадью и календарём, а окно после отмены так никто и не занимает. OnTime собирает всё в одном месте.</p>
+    <div class="arch">
+      <div class="col">
+        <div class="lbl">Клиент</div>
+        <div class="node">Страница записи<small>on-time.by/b/<i>ваш-салон</i></small></div>
+        <div class="node">Веб-чат и голос с AI<small>прямо на странице записи</small></div>
+        <div class="node">Telegram-бот<small>общий OnTime или свой</small></div>
       </div>
+      <div class="arrow"><svg viewBox="0 0 64 24"><path d="M2 12h56m-8-7 8 7-8 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+      <div class="core">
+        <span class="logo">On<b>Time</b></span>
+        <div class="row"><span>Записи и клиенты</span><span>PostgreSQL</span></div>
+        <div class="row"><span>Сценарии</span><span>11 триггеров · 7 шагов</span></div>
+        <div class="row"><span>AI-администратор</span><span>5 инструментов</span></div>
+        <div class="row"><span>Планировщик</span><span>каждую минуту</span></div>
+      </div>
+      <div class="arrow"><svg viewBox="0 0 64 24"><path d="M2 12h56m-8-7 8 7-8 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+      <div class="col">
+        <div class="lbl">Бизнес</div>
+        <div class="node">Google Calendar<small>2 календаря на каждого мастера</small></div>
+        <div class="node">Telegram и Email<small>клиенту и владельцу</small></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-      <!-- Слот для фото главной страницы сайта -->
-      <div class="browser-frame">
-        <div class="browser-bar">
-          <div class="browser-dots"><i></i><i></i><i></i></div>
-          <div class="browser-url">https://on-time.by — Главный экран платформы</div>
+<!-- 03 · Booking page + no double booking -->
+<section class="slide" data-title="Деталь 01 · Страница записи">
+  <div class="inner split">
+    <div class="rise">
+      <div class="kick"><div class="slot" data-k=".5" data-h=".3"></div><div class="eyebrow">Деталь <span class="n">01</span> · Страница записи</div></div>
+      <h2>Четыре шага, никакой регистрации и двойных записей</h2>
+      <ul class="facts">
+        <li><span>Услуга → мастер или <b>«любой мастер»</b> → время → контакты. Клиенту нужны только имя и телефон.</span></li>
+        <li><span>Время начинается <b>каждые 15 минут</b>: рабочие часы мастера <b>минус</b> всё, что занято в его Google Calendar.</span></li>
+        <li><span>Два клиента выбрали одно время одновременно — запись получает <b>первый</b>. Это гарантирует ограничение в PostgreSQL, а не проверка в коде.</span></li>
+        <li><span>После записи клиент получает <b>подписанную ссылку</b>, по которой может отменить или перенести запись.</span></li>
+        <li><span>Согласие на рассылку — отдельная галочка, по умолчанию выключена.</span></li>
+      </ul>
+    </div>
+    <div class="mock rise">
+      <div class="mock-bar"><i></i><i></i><i></i><span>on-time.by/b/salon-sever</span></div>
+      <div class="mock-body">
+        <div class="steps"><span class="done">Услуга</span><span class="done">Мастер</span><span class="cur">Время</span><span>Контакты</span></div>
+        <div class="svc"><b>Стрижка · Анна</b><span>45 мин · 35 BYN</span></div>
+        <div class="days">
+          <div>пн<b>26</b></div><div class="sel">вт<b>27</b></div><div>ср<b>28</b></div><div>чт<b>29</b></div><div>пт<b>30</b></div><div>сб<b>31</b></div><div>вс<b>1</b></div>
         </div>
-        <div class="photo-slot has-image" data-slot="hero-main" data-default-src="landing.png">
-          <img src="landing.png" alt="Главный экран сайта OnTime">
-          <div class="slot-placeholder">
-            <div class="slot-icon">＋</div>
-            <div class="slot-title">Вставьте скриншот главного экрана сайта</div>
-            <div class="slot-sub">Кликните или перетащите изображение сюда (сохраняется в браузере автоматически)</div>
-          </div>
-          <span class="slot-change-badge">Изменить скриншот</span>
+        <div class="slots">
+          <span>10:00</span><span>10:15</span><span class="x">10:30</span><span class="x">10:45</span><span class="x">11:00</span>
+          <span class="x">11:15</span><span>11:30</span><span class="sel">11:45</span><span>12:00</span><span>12:15</span>
+        </div>
+        <div class="taken">Клиент Б, 11:45 — «Это время уже заняли, выберите другое»</div>
+<pre class="sql"><span class="c">-- у одного мастера интервалы не пересекаются</span>
+<span class="k">EXCLUDE USING</span> gist (staff_id <span class="k">WITH</span> <span class="s">=</span>,
+  tstzrange(starts_at, ends_at) <span class="k">WITH</span> <span class="s">&amp;&amp;</span>)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 · Google Calendar -->
+<section class="slide" data-title="Деталь 02 · Google Calendar">
+  <div class="inner split wide-r">
+    <div class="rise">
+      <div class="kick"><div class="slot" data-k=".8" data-h=".5"></div><div class="eyebrow">Деталь <span class="n">02</span> · Google Calendar</div></div>
+      <h2>Расписание живёт в календаре мастера</h2>
+      <p class="lead">У каждого мастера два календаря: <b>«записи»</b> и <b>«рабочие часы»</b>. OnTime создаёт их сам, а делиться ими можно по email.</p>
+      <table class="sync" style="margin-top:20px">
+        <tr><td>Клиент записался</td><td>Событие «Услуга: Имя клиента» с телефоном</td></tr>
+        <tr><td>Событие перетащили в Google</td><td>Запись переносится, клиент получает уведомление</td></tr>
+        <tr><td>Событие удалили в Google</td><td>Запись отменяется, окно уходит листу ожидания</td></tr>
+        <tr><td>Личное дело мастера поверх записи</td><td>Запись сохраняется, владелец получает предупреждение</td></tr>
+        <tr><td>Перенос на чужую запись</td><td>Событие возвращается на место</td></tr>
+      </table>
+      <p class="src">Изменения приходят push-уведомлениями Google и дополнительно проверяются каждые 5 минут.</p>
+    </div>
+    <div class="mock rise">
+      <div class="mock-bar"><i></i><i></i><i></i><span>Google Calendar · вт, 27 октября</span></div>
+      <div class="mock-body" style="padding:0 0 10px">
+        <div class="cal">
+          <div class="hd"></div><div class="hd">Анна</div><div class="hd">Ольга</div><div class="hd">Игорь</div>
+          <div class="t">10:00</div>
+          <div class="cell"><div class="work"></div><div class="ev r" style="top:4px;height:62px">Окрашивание: Мария К.</div></div>
+          <div class="cell"><div class="work"></div><div class="ev r" style="top:4px;height:38px">Маникюр: Елена</div></div>
+          <div class="cell"></div>
+          <div class="t">11:00</div>
+          <div class="cell"><div class="work"></div><div class="ev r" style="top:34px;height:34px">Стрижка: Дмитрий П.</div></div>
+          <div class="cell"><div class="work"></div></div>
+          <div class="cell"><div class="work"></div><div class="ev r" style="top:4px;height:56px">Стрижка: Ирина</div></div>
+          <div class="t">12:00</div>
+          <div class="cell"><div class="work"></div></div>
+          <div class="cell"><div class="work"></div><div class="ev p" style="top:4px;height:38px">Личное · врач</div></div>
+          <div class="cell"><div class="work"></div><div class="ev cf" style="top:14px;height:40px">⚠ Пересечение</div></div>
+          <div class="t">13:00</div>
+          <div class="cell"><div class="work"></div></div>
+          <div class="cell"><div class="work"></div></div>
+          <div class="cell"><div class="work"></div></div>
+        </div>
+        <div style="display:flex;gap:14px;padding:12px 14px 0;font-size:11.5px;color:var(--mut);flex-wrap:wrap">
+          <span><b style="color:var(--teal)">■</b> запись OnTime</span><span><b style="color:#b8b1a8">■</b> событие мастера</span><span>▨ рабочие часы</span><span><b style="color:var(--coral)">■</b> конфликт</span>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- СЛАЙД 2: ПРОБЛЕМА РЫНКА -->
-  <section class="slide" data-title="2. Проблема рынка" data-orb-x="0.5" data-orb-y="0.2" data-orb-s="180" data-orb-h="0.8">
-    <div class="slide-inner stagger">
-      <div>
-        <div class="eyebrow coral">Проблема рынка</div>
-        <h2>Почему текущий рынок неэффективен?</h2>
+<!-- 05 · Workflows -->
+<section class="slide" data-title="Деталь 03 · Сценарии">
+  <div class="inner split">
+    <div class="rise">
+      <div class="kick"><div class="slot" data-k="1.3" data-h=".75"></div><div class="eyebrow">Деталь <span class="n">03</span> · Сценарии</div></div>
+      <h2>Владелец сам решает, кому, что и когда писать</h2>
+      <p class="lead">Визуальный редактор: триггер, затем цепочка шагов. Тексты с переменными <code>{{client.name}}</code>, <code>{{record.time}}</code>, <code>{{cancel_link}}</code>.</p>
+      <div style="margin-top:20px;display:grid;gap:12px">
+        <div><div class="lbl">11 триггеров</div>
+          <div class="chips"><span class="chip t">Новая запись</span><span class="chip t">Запись изменена</span><span class="chip t">Запись отменена</span><span class="chip t">За N ч до визита</span><span class="chip t">После визита</span><span class="chip t">Освободилось время</span><span class="chip t">Пересечение с Google</span><span class="chip t">Сообщение в Telegram</span><span class="chip t">Сообщение в веб-чате</span><span class="chip t">Не приходил N дней</span><span class="chip t">Расписание</span></div></div>
+        <div><div class="lbl">7 шагов</div>
+          <div class="chips"><span class="chip c">Отправить Telegram</span><span class="chip c">Отправить Email</span><span class="chip c">Уведомить владельца</span><span class="chip c">Уведомить лист ожидания</span><span class="chip c">Ответ AI-администратора</span><span class="chip">Условие</span><span class="chip">Задержка</span></div></div>
       </div>
-
-      <div class="grid-2" style="margin-top:28px; align-items:stretch">
-        <div class="card" style="border-top: 4px solid var(--coral)">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px">
-            <span class="logo-pill" style="background:var(--coral-l); color:#a4482c">Боль Клиента (B2C)</span>
-          </div>
-          <div style="display:grid; gap:18px">
-            <div style="padding:16px; border-radius:16px; background:var(--tp)">
-              <h3>1. Страх неопределенности</h3>
-              <p style="margin-top:6px; font-size:14px">
-                Дискомфорт от непредсказуемости и невозможности заранее увидеть результат услуги на себе до визита к мастеру.
-              </p>
-            </div>
-            <div style="padding:16px; border-radius:16px; background:var(--tp)">
-              <h3>2. Сложность записи</h3>
-              <p style="margin-top:6px; font-size:14px">
-                Необходимость подстраиваться под рабочие часы и телефонные звонки вместо удобного онлайн-формата 24/7.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="border-top: 4px solid var(--teal)">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px">
-            <span class="logo-pill">Боль Бизнеса (B2B)</span>
-          </div>
-          <div style="display:grid; gap:18px">
-            <div style="padding:16px; border-radius:16px; background:var(--tp)">
-              <h3>1. Забывчивость клиентов — 37.6% неявок</h3>
-              <p style="margin-top:6px; font-size:14px">
-                <strong>37.6%</strong> пропущенных визитов происходят исключительно из-за отсутствия своевременных автонапоминаний.
-              </p>
-            </div>
-            <div style="padding:16px; border-radius:16px; background:var(--tp)">
-              <h3>2. Проблемы устаревшего софта</h3>
-              <p style="margin-top:6px; font-size:14px">
-                Ручные ошибки администраторов, накладки графиков мастеров, перегруженный интерфейс и отсутствие единой синхронизации.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <p style="font-size:12px; margin-top:18px">
-        Источники: BankMyCell, ВЦИОМ, ProDoctorov, YCLIENTS, исследование показателей клиентского стресса и финансовых потерь МСБ.
-      </p>
+      <ul class="facts" style="margin-top:18px">
+        <li><span><b>Черновик и опубликованная версия</b>: правки не влияют на клиентов, пока их не опубликовать.</span></li>
+        <li><span><b>Тестовый запуск</b> на примере данных: сообщения приходят владельцу, а не клиентам.</span></li>
+      </ul>
     </div>
-  </section>
-
-  <!-- СЛАЙД 3: МАСШТАБ ПРОБЛЕМЫ + ИНТЕРАКТИВНЫЙ КАЛЬКУЛЯТОР ПОТЕРЬ -->
-  <section class="slide" data-title="3. Масштаб проблемы" data-orb-x="0.82" data-orb-y="0.55" data-orb-s="240" data-orb-h="0.9">
-    <div class="slide-inner stagger">
-      <div>
-        <div class="eyebrow coral">Масштаб проблемы</div>
-        <h2>Ежедневные потери B2B клиентов</h2>
-      </div>
-
-      <div class="grid-3" style="margin-top:28px; align-items:stretch">
-        <div class="card">
-          <span class="logo-pill" style="background:var(--coral-l); color:#a4482c">Клиентский стресс</span>
-          <div class="big-stat">до <span class="count" data-target="76">76</span>%</div>
-          <h3>Клиентов</h3>
-          <p style="margin-top:8px; font-size:14px">
-            Регулярно испытывают стресс от телефонных звонков, долгих ожиданий ответа и непредсказуемого результата услуг.
-          </p>
-        </div>
-
-        <div class="card">
-          <span class="logo-pill" style="background:var(--coral-l); color:#a4482c">Финансовые потери</span>
-          <div class="big-stat">до <span class="count" data-target="45">45</span>%</div>
-          <h3>Выручки</h3>
-          <p style="margin-top:8px; font-size:14px">
-            Ежемесячно теряет малый и средний бизнес из-за неявок клиентов, поздних отмен и ошибок устаревшего софта.
-          </p>
-        </div>
-
-        <!-- Интерактивный симулятор потерь бизнеса -->
-        <div class="card coral-tint">
-          <h3>Калькулятор потерь салона</h3>
-          <p style="font-size:13px; margin-top:4px; color:#6e4335">Оцените, сколько теряет бизнес без OnTime:</p>
-          <div style="margin-top:16px">
-            <label style="font-size:13px; display:flex; justify-content:space-between">
-              <span>Оборот салона в месяц:</span>
-              <b id="loss-rev-val">15 000 BYN</b>
-            </label>
-            <input type="range" id="loss-rev" min="5000" max="50000" step="1000" value="15000" oninput="calcLoss()">
-          </div>
-          <div style="margin-top:12px; padding:16px; border-radius:16px; background:#fff">
-            <span style="font-size:12px; color:var(--mut)">Потери до 45% выручки в месяц:</span>
-            <div style="font-size:28px; font-weight:600; color:#a4482c; margin-top:4px" id="loss-total">до 6 750 BYN</div>
-            <span style="font-size:11px; color:var(--teal-d)">OnTime устраняет простои и ручные накладки</span>
-          </div>
-        </div>
-      </div>
-
-      <p style="font-size:12px; margin-top:18px">
-        Источники: BankMyCell, ВЦИОМ, ProDoctorov, YCLIENTS, исследование показателей клиентского стресса и финансовых потерь МСБ.
-      </p>
-    </div>
-  </section>
-
-  <!-- СЛАЙД 4: ОТЛИЧИЕ ОТ КОНКУРЕНТОВ — ТРИ ДЕТАЛИ -->
-  <section class="slide" data-title="4. Отличие от конкурентов" data-orb-x="0.85" data-orb-y="0.18" data-orb-s="150" data-orb-h="0.3">
-    <div class="slide-inner stagger">
-      <div>
-        <div class="eyebrow">Отличие от конкурентов</div>
-        <h2>Разница — в деталях</h2>
-        <p class="lead" style="margin-top:12px; max-width:760px">
-          Zen24 и Bitrix24 решают задачу записи. OnTime сопровождает клиента и бизнес на всём пути: от расписания в календаре и уведомлений до готового образа ещё до визита.
-        </p>
-      </div>
-
-      <div class="grid-3" style="margin-top:24px; align-items:stretch">
-        <div class="card diff-card">
-          <div class="diff-head">
-            <div class="diff-icon">31</div>
-            <div>
-              <div class="vs-label">Для организаций</div>
-              <h3>Google Calendar</h3>
-            </div>
-          </div>
-          <div class="vs-old"><b>Обычно</b>Расписание доступно только внутри CRM: чтобы узнать детали записи, приходится открывать систему.</div>
-          <ul class="vs-new">
-            <li>Вся информация об услуге — прямо в событии календаря</li>
-            <li>Администратор видит записи всех мастеров, мастер — только свои</li>
-            <li>Перенос и отмена обновляются в календаре автоматически</li>
-          </ul>
-        </div>
-
-        <div class="card diff-card">
-          <div class="diff-head">
-            <div class="diff-icon coral">✉</div>
-            <div>
-              <div class="vs-label">Для всех участников</div>
-              <h3>Telegram и Email</h3>
-            </div>
-          </div>
-          <div class="vs-old"><b>Обычно</b>Платные SMS-рассылки: счёт растёт вместе с числом клиентов, а сообщения приходят только о части событий.</div>
-          <ul class="vs-new">
-            <li>Все уведомления продукта — в Telegram и на почту, без доплат за SMS</li>
-            <li>Клиент, мастер и администратор узнают о каждом изменении записи</li>
-            <li><b>Освободилось время?</b> Клиент сразу получает сообщение о желаемом окне</li>
-          </ul>
-        </div>
-
-        <div class="card diff-card">
-          <div class="diff-head">
-            <div class="diff-icon ink">✦</div>
-            <div>
-              <div class="vs-label">Для клиента</div>
-              <h3>AI Камера</h3>
-            </div>
-          </div>
-          <div class="vs-old"><b>Обычно</b>Клиент идёт к мастеру вслепую и видит результат только в зеркале, когда менять уже поздно.</div>
-          <ul class="vs-new">
-            <li>Новый образ генерируется до визита к мастеру</li>
-            <li>Камера + текстовый запрос → реалистичный результат на себе</li>
-            <li>Готовую картинку клиент показывает мастеру: никаких недопониманий</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="rival-strip">
-        <span class="pill"><i style="background:var(--coral)"></i><b>Zen24:</b>&nbsp;сбои и нет синхронизации внешних календарей</span>
-        <span class="pill"><i style="background:#b5892e"></i><b>Bitrix24:</b>&nbsp;перегруженный интерфейс, фокус только на B2B, но выгодные планы</span>
-        <span class="pill"><i></i><b>OnTime:</b>&nbsp;фиксированная оплата, не зависит от числа клиентов и SMS</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- СЛАЙД 5: ДЕТАЛЬ 1 — GOOGLE CALENDAR -->
-  <section class="slide" data-title="5. Google Calendar" data-orb-x="0.08" data-orb-y="0.85" data-orb-s="160" data-orb-h="0.25">
-    <div class="slide-inner grid-2-asym stagger">
-      <div>
-        <div class="eyebrow">Деталь 01 · Google Calendar</div>
-        <h2>Всё о записи — в календаре организации</h2>
-        <p class="lead" style="margin-top:14px">
-          Не нужно держать CRM открытой весь день. Каждая подтверждённая запись появляется в Google Calendar со всей информацией об услуге.
-        </p>
-
-        <div style="display:grid; gap:12px; margin-top:22px">
-          <div class="card soft" style="padding:16px 20px">
-            <h3>Что внутри события</h3>
-            <p style="font-size:14px; margin-top:4px">Услуга и имя клиента в названии, мастер, точное время начала и окончания, ссылка на запись в OnTime.</p>
-          </div>
-          <div class="card soft" style="padding:16px 20px">
-            <h3>Кто что видит</h3>
-            <p style="font-size:14px; margin-top:4px">Администратор видит записи всех мастеров организации. Мастер получает только свои записи в личный календарь.</p>
-          </div>
-          <div class="card soft" style="padding:16px 20px">
-            <h3>Всегда актуально</h3>
-            <p style="font-size:14px; margin-top:4px">Подтвердили запись — событие появилось. Перенесли — сдвинулось. Отменили или запись истекла — исчезло. Без ручной работы.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="gcal" aria-label="Пример календаря организации">
-        <div class="gcal-top">
-          <b>Google Calendar · Салон «Север»</b>
-          <span style="color:var(--mut)">Сб, 18 октября</span>
-        </div>
-        <div class="gcal-cols">
-          <div style="border-bottom:1px solid var(--line)"></div>
-          <div class="gcal-col-h">Анна</div>
-          <div class="gcal-col-h">Ольга</div>
-          <div class="gcal-col-h">Игорь</div>
-
-          <div class="gcal-time">10:00</div>
-          <div class="gcal-cell"><div class="gcal-ev t" style="top:3px; height:84px"><b>Окрашивание — Мария К.</b>10:00–11:45</div></div>
-          <div class="gcal-cell"><div class="gcal-ev c" style="top:3px; height:40px"><b>Маникюр — Елена</b>10:00–10:50</div></div>
-          <div class="gcal-cell"></div>
-
-          <div class="gcal-time">11:00</div>
-          <div class="gcal-cell"></div>
-          <div class="gcal-cell"></div>
-          <div class="gcal-cell"><div class="gcal-ev k focus" style="top:3px; height:40px"><b>Стрижка — Дмитрий П.</b>11:00–11:45</div></div>
-
-          <div class="gcal-time">12:00</div>
-          <div class="gcal-cell"><div class="gcal-ev t" style="top:3px; height:40px"><b>Укладка — Ирина</b>12:00–12:45</div></div>
-          <div class="gcal-cell"><div class="gcal-ev c" style="top:3px; height:40px"><b>Педикюр — Светлана</b>12:00–12:50</div></div>
-          <div class="gcal-cell"></div>
-        </div>
-
-        <div class="gcal-pop">
-          <div style="font-size:15px; font-weight:600">Стрижка — Дмитрий П.</div>
-          <div class="gcal-pop-row"><span>◷</span><span>Сб, 18 октября · 11:00–11:45</span></div>
-          <div class="gcal-pop-row"><span>✂</span><span>Мастер: Игорь</span></div>
-          <div class="gcal-pop-row"><span>✉</span><span>Гость: мастер, событие продублировано в его календарь</span></div>
-          <div class="gcal-pop-row"><span>↗</span><span style="color:var(--teal-d)">Запись OnTime</span></div>
+    <div class="mock rise">
+      <div class="mock-bar"><i></i><i></i><i></i><span>Сценарии · Напоминание за 24 ч</span></div>
+      <div class="canvas">
+        <div class="wf trig"><small>Триггер</small>За N ч до визита · <b>24 ч</b></div>
+        <div class="link"></div>
+        <div class="wf logic"><small>Условие</small>client.email · заполнено</div>
+        <div class="link"></div>
+        <div class="branch">
+          <div><span class="tag">да</span><div class="wf act"><small>Email</small>Ваша запись в «{{org.name}}»</div></div>
+          <div><span class="tag">нет</span><div class="wf act"><small>Telegram</small>Напоминание<div class="tpl">завтра в {{record.time}} — {{service.title}}</div></div></div>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- СЛАЙД 6: ДЕТАЛЬ 2 — TELEGRAM И EMAIL -->
-  <section class="slide" data-title="6. Telegram и Email" data-orb-x="0.94" data-orb-y="0.12" data-orb-s="130" data-orb-h="0.7">
-    <div class="slide-inner grid-2-asym stagger">
-      <div>
-        <div class="eyebrow coral">Деталь 02 · Telegram и Email</div>
-        <h2>Каждое событие — в мессенджер и на почту</h2>
-        <p class="lead" style="margin-top:12px">
-          Все уведомления, которые есть в продукте, дублируются в Telegram и Email. Каждый получает только то, что касается его.
-        </p>
+<!-- 06 · Templates + reliability -->
+<section class="slide" data-title="Деталь 04 · Из коробки">
+  <div class="inner split wide-r">
+    <div class="rise">
+      <div class="kick"><div class="slot" data-k=".35" data-h=".15"></div><div class="eyebrow">Деталь <span class="n">04</span> · Из коробки и без сбоев</div></div>
+      <h2>10 сценариев работают сразу после регистрации</h2>
+      <ul class="facts">
+        <li><span>Каждое уведомление уходит <b>в Telegram и на почту</b>, без платных SMS.</span></li>
+        <li><span><b>Одно напоминание</b> на одну запись, даже если событие пришло дважды.</span></li>
+        <li><span>Запись перенесли — напоминание на старое время <b>пропускается</b>. Запись сделана за час до визита — «за 24 ч» не уходит задним числом.</span></li>
+        <li><span>Шаг упал — запуск можно <b>повторить с этого шага</b>. История хранится 30 дней.</span></li>
+      </ul>
+    </div>
+    <div class="card rise" style="padding:16px 8px 8px">
+      <table class="tpl">
+        <tr><th>Сценарий</th><th>Что делает</th></tr>
+        <tr><td>Новая запись</td><td>Подтверждение и ссылка на отмену/перенос</td></tr>
+        <tr><td>Напоминание за 24 ч</td><td>«Завтра в 11:45 — стрижка»</td></tr>
+        <tr><td>Напоминание за 2 ч</td><td>«Ждём вас сегодня»</td></tr>
+        <tr><td>Запись изменена</td><td>Новая дата и время</td></tr>
+        <tr><td>Запись отменена</td><td>Ссылка, чтобы записаться снова</td></tr>
+        <tr><td>Освободилось время</td><td>Рассылка листу ожидания</td></tr>
+        <tr><td>Пересечение с Google</td><td>Предупреждение владельцу</td></tr>
+        <tr class="off"><td>Возвращение</td><td>«Давно вас не видели» через 60 дней</td></tr>
+        <tr><td>Telegram → AI</td><td>Отвечает AI-администратор</td></tr>
+        <tr><td>Веб-чат → AI</td><td>Отвечает AI-администратор</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
 
-        <div class="n-matrix">
-          <div class="n-row head"><div>Событие</div><div>Клиент</div><div>Мастер</div><div>Админ</div></div>
-          <div class="n-row"><div>Новая запись, ждёт подтверждения</div><div class="n-yes">✓</div><div class="n-yes">✓</div><div class="n-yes">✓</div></div>
-          <div class="n-row"><div>Запись подтверждена</div><div class="n-yes">✓</div><div class="n-yes">✓</div><div class="n-yes">✓</div></div>
-          <div class="n-row"><div>Запись перенесена</div><div class="n-yes">✓</div><div class="n-yes">✓</div><div class="n-yes">✓</div></div>
-          <div class="n-row"><div>Запись отменена</div><div class="n-yes">✓</div><div class="n-yes">✓</div><div class="n-yes">✓</div></div>
-          <div class="n-row"><div>Напоминание за 24 часа до визита</div><div class="n-yes">✓</div><div class="n-no">—</div><div class="n-no">—</div></div>
-          <div class="n-row hl"><div><b>Освободилось желаемое время</b></div><div class="n-yes">✓</div><div class="n-no">—</div><div class="n-no">—</div></div>
-        </div>
-        <p style="font-size:12px; margin-top:10px">Без платных SMS. Контакты клиента не попадают в сообщения для персонала.</p>
-      </div>
+<!-- 07 · Waitlist -->
+<section class="slide" data-title="Деталь 05 · Лист ожидания">
+  <div class="inner rise">
+    <div class="kick"><div class="slot" data-k="1.3" data-h=".75"></div><div class="eyebrow">Деталь <span class="n">05</span> · Лист ожидания</div></div>
+    <h2>Отменённая запись становится новой, а не пустым окном</h2>
+    <p class="lead">Нужного времени нет? Клиент не уходит, а оставляет пожелание. Как только время освобождается, OnTime сам сообщает об этом всем, кто его ждёт.</p>
+    <div class="flow" style="margin-top:28px">
+      <div class="card"><h3>Пожелание</h3><p>Услуга, мастер или <b>«любой»</b>, день и окно «с 14:00 до 18:00».</p></div>
+      <div class="card"><h3>Отмена</h3><p>Кто-то отменил будущую запись на сайте, по ссылке или удалив событие в Google.</p></div>
+      <div class="card"><h3>Совпадение</h3><p>Та же услуга и день, тот же или любой мастер, время начала попадает в окно.</p></div>
+      <div class="card tint"><h3>Ссылка</h3><p>Каждому приходит ссылка, которая открывает запись <b>сразу на этом времени</b>. Достаётся тому, кто запишется первым.</p></div>
+    </div>
+    <p class="src">Пожелание закрывается само, когда клиент записался на эту услугу в этот день. Прошедшие пожелания закрываются каждую ночь.</p>
+  </div>
+</section>
 
-      <div class="tg-phone" aria-label="Пример уведомлений в Telegram">
-        <div class="tg-screen">
-          <div class="tg-head">
-            <div class="tg-ava">OT</div>
-            <div>
-              <div style="font-size:14px; font-weight:600">OnTime Bot</div>
-              <div style="font-size:11px; color:var(--mut)">бот</div>
-            </div>
-          </div>
-          <div class="tg-body">
-            <div class="tg-msg">Запись подтверждена
-Стрижка — Игорь
-18.10 11:00<small>09:12</small></div>
-            <div class="tg-msg">Напоминание о записи
-Стрижка — Игорь
-18.10 11:00<small>вчера</small></div>
-            <div class="tg-msg hot">🔔 Освободилось желаемое время
-Окрашивание — Анна
-19.10 15:00
-<div class="tg-btn">Записаться →</div><small>14:37</small></div>
-          </div>
-        </div>
+<!-- 08 · AI administrator + voice -->
+<section class="slide" data-title="Деталь 06 · AI-администратор">
+  <div class="inner split">
+    <div class="rise">
+      <div class="kick"><div class="slot" data-k="1.7" data-h=".9"></div><div class="eyebrow">Деталь <span class="n">06</span> · AI-администратор</div></div>
+      <h2>Не просто отвечает, а записывает — в чате, в Telegram и голосом</h2>
+      <div class="chips" style="margin-top:6px"><span class="chip k">list_staff</span><span class="chip k">find_slots</span><span class="chip k">book</span><span class="chip k">join_waitlist</span><span class="chip k">request_callback</span></div>
+      <ul class="facts">
+        <li><span>Перед записью <b>повторяет</b> услугу, мастера, дату и время и спрашивает <b>согласие на обработку данных</b>.</span></li>
+        <li><span>Понимает номер в любом виде (80 29…, 29…) и сам приводит его к <b>+375</b>.</span></li>
+        <li><span>Не может помочь — предлагает <b>обратный звонок</b>, и заявка попадает к владельцу в «Перезвонить».</span></li>
+        <li><span>Голос: нажал, сказал, отпустил. Ответ звучит вслух и дублируется текстом, ссылки не зачитываются.</span></li>
+      </ul>
+      <div class="voice">
+        <div><b>60 мин</b><small>голоса в день бесплатно</small></div>
+        <div><b>∞</b><small>текстовый чат</small></div>
+        <div><b>6</b><small>шагов на ответ, дальше — перезвон</small></div>
       </div>
     </div>
-  </section>
-  <!-- СЛАЙД 7: КИЛЛЕР-ФИЧА AI КАМЕРА -->
-  <section class="slide" data-title="7. AI Камера" data-orb-x="0.75" data-orb-y="0.5" data-orb-s="250" data-orb-h="0.85">
-    <div class="slide-inner grid-2-asym stagger">
-      <div>
-        <div class="eyebrow coral">Деталь 03 · AI Камера</div>
-        <h2>Образ — ещё до визита к мастеру</h2>
-
-        <div style="display:grid; gap:14px; margin-top:20px">
-          <div class="card soft" style="padding:18px 22px">
-            <h3>1. Анализ в реальном времени</h3>
-            <p style="font-size:14px; margin-top:4px">
-              Клиент наводит камеру смартфона. AI мгновенно сканирует геометрию лица и структуру волос.
-            </p>
-          </div>
-          <div class="card soft" style="padding:18px 22px">
-            <h3>2. Генерация по текстовому промпту</h3>
-            <p style="font-size:14px; margin-top:4px">
-              Ввод текста (например, «блонд каре»). Нейросеть достраивает реалистичный образ прямо поверх анализа с камеры.
-            </p>
-          </div>
-          <div class="card dark" style="padding:18px 22px">
-            <div style="display:flex; justify-content:space-between; align-items:center">
-              <h3 style="color:#fff">3. Драйвер монетизации</h3>
-              <span class="logo-pill" style="background:var(--coral); color:#fff">29.99 BYN / мес</span>
-            </div>
-            <p style="font-size:14px; margin-top:4px">
-              Единый визуальный образ для мастера и клиента. Доступно по подписке (29.99 BYN/мес) без жесткой привязки к организации.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="browser-frame">
-        <div class="browser-bar">
-          <div class="browser-dots"><i></i><i></i><i></i></div>
-          <div class="browser-url">https://on-time.by/ai-camera — AI Камера</div>
-        </div>
-        <div class="photo-slot has-image" data-slot="ai-camera" data-default-src="ai_camera.png">
-          <img src="ai_camera.png" alt="AI Камера в действии">
-          <div class="slot-placeholder">
-            <div class="slot-icon">✦</div>
-            <div class="slot-title">Скриншот AI Камеры</div>
-            <div class="slot-sub">Кликните или перетащите скриншот сюда</div>
-          </div>
-          <span class="slot-change-badge">Заменить скриншот</span>
-        </div>
+    <div class="mock rise">
+      <div class="mock-bar"><i></i><i></i><i></i><span>Веб-чат · Салон «Север»</span></div>
+      <div class="mock-body chat">
+        <div class="msg u">Хочу на стрижку завтра после обеда</div>
+        <span class="tool">find_slots(стрижка, 2026-10-27)</span>
+        <div class="msg a">Завтра свободно у Анны в 14:30 и 15:00, у Ольги в 16:15. Стрижка — 45 минут, 35 BYN. Какое время удобно?</div>
+        <div class="msg u">Анна, 14:30. Дмитрий, 29 123 45 67</div>
+        <div class="msg a">Записываю: стрижка у Анны, во вторник, 27 октября, в 14:30, Дмитрий, +375291234567. Согласны на обработку персональных данных?</div>
+        <div class="msg u">Да</div>
+        <span class="tool">book(…) → booked</span>
+        <div class="msg a">Готово! Ссылка, чтобы отменить или перенести запись: on-time.by/c/…</div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- СЛАЙД 8: КОНКУРЕНТНОЕ ПРЕИМУЩЕСТВО B2C + СКРИНШОТ САЙТА -->
-  <section class="slide" data-title="8. Преимущество B2C" data-orb-x="0.78" data-orb-y="0.45" data-orb-s="230" data-orb-h="0.5">
-    <div class="slide-inner grid-2-asym stagger">
-      <div>
-        <div class="eyebrow">Конкурентное преимущество B2C</div>
-        <h2>Почему клиенты выбирают нас?</h2>
-
-        <div style="display:grid; gap:12px; margin-top:20px">
-          <div class="card" style="padding:20px 26px">
-            <span class="logo-pill">01 · Быстрое бронирование</span>
-            <h3 style="margin-top:10px; font-size:22px">Запись в два клика</h3>
-            <p style="margin-top:6px; font-size:15px">
-              Интуитивный поиск услуг по смарт-фильтру. Мгновенное бронирование свободного окна и просмотр истории визитов без единого телефонного звонка.
-            </p>
-          </div>
-
-          <div class="card" style="padding:20px 26px">
-            <span class="logo-pill" style="background:var(--coral-l); color:#a4482c">02 · Визуализация до визита</span>
-            <h3 style="margin-top:10px; font-size:22px">Технология AI Камера</h3>
-            <p style="margin-top:6px; font-size:15px">
-              Уникальная система визуализации результата до похода в салон. Полное устранение страха неизвестности перед сменой имиджа.
-            </p>
-          </div>
-
-          <div class="card" style="padding:20px 26px">
-            <span class="logo-pill">03 · Лист ожидания</span>
-            <h3 style="margin-top:10px; font-size:22px">Уведомление о желаемом времени</h3>
-            <p style="margin-top:6px; font-size:15px">
-              Удобное время уже занято? Клиент подписывается на него и сразу получает сообщение в Telegram или на почту, как только окно освободится для записи.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Слот для скриншота клиентской записи сайта -->
-      <div class="browser-frame">
-        <div class="browser-bar">
-          <div class="browser-dots"><i></i><i></i><i></i></div>
-          <div class="browser-url">https://on-time.by/booking — Интерфейс онлайн-записи B2C</div>
-        </div>
-        <div class="photo-slot has-image" data-slot="b2c-booking" data-default-src="choose_a_time.png">
-          <img src="find_service.png" alt="Скриншот записи клиента на сайте">
-          <div class="slot-placeholder">
-            <div class="slot-icon">＋</div>
-            <div class="slot-title">Скриншот страницы записи (B2C)</div>
-            <div class="slot-sub">Кликните или перетащите сюда скриншот выбора услуги, мастера и времени с вашего сайта</div>
-          </div>
-          <span class="slot-change-badge">Заменить фото</span>
-        </div>
-      </div>
+<!-- 09 · Telegram, email, marketing -->
+<section class="slide" data-title="Деталь 07 · Telegram, Email, рассылки">
+  <div class="inner split">
+    <div class="rise">
+      <div class="kick"><div class="slot" data-k=".6" data-h=".5"></div><div class="eyebrow">Деталь <span class="n">07</span> · Telegram, Email и рассылки</div></div>
+      <h2>Свои каналы вместо платных SMS</h2>
+      <ul class="facts">
+        <li><span>Бот на выбор: <b>общий бот OnTime</b> или <b>собственный</b> с названием организации. Клиент подключается кнопкой «Поделиться номером» — только своим.</span></li>
+        <li><span>Письма уходят с <b>почты организации</b>, ответ клиента попадает владельцу.</span></li>
+        <li><span>Акции — только после явного <b>«Получать акции и новости»</b>. «Отписаться» есть в каждом сообщении.</span></li>
+        <li><span>Дневной лимит рассылок (<b>300</b> по умолчанию). Каждый пропуск записан с причиной.</span></li>
+        <li><span>Пароли и токены подключённых сервисов <b>шифруются</b> и никогда не возвращаются из API.</span></li>
+      </ul>
     </div>
-  </section>
-
-  <!-- СЛАЙД 9: КОНКУРЕНТНОЕ ПРЕИМУЩЕСТВО B2B + СИМУЛЯТОР ДЕДЛАЙНА -->
-  <section class="slide" data-title="9. Преимущество B2B" data-orb-x="0.25" data-orb-y="0.5" data-orb-s="210" data-orb-h="0.2">
-    <div class="slide-inner stagger">
-      <div>
-        <div class="eyebrow">Конкурентное преимущество B2B</div>
-        <h2>Полный контроль и защита бизнеса</h2>
-      </div>
-
-      <div class="grid-3" style="margin-top:24px; align-items:stretch">
-        <!-- Карточка 1 с интерактивным симулятором формулы -->
-        <div class="card teal-tint">
-          <span class="logo-pill" style="background:#fff">Защита расписания</span>
-          <h3 style="margin-top:12px; font-size:22px">Алгоритм защиты времени</h3>
-          <p style="margin-top:8px; font-size:14px; color:var(--teal-d)">
-            Формула дедлайна: <b>(Начало − Сейчас) × 0.9</b>. Если администратор не успел подтвердить заявку, запись автоматически отменяется.
-          </p>
-          <div style="margin-top:16px; background:#fff; padding:14px; border-radius:16px">
-            <label style="font-size:12px; display:flex; justify-content:space-between">
-              <span>До визита осталось:</span>
-              <b id="dl-hours-lbl">10 ч.</b>
-            </label>
-            <input type="range" min="1" max="24" value="10" oninput="calcDeadline(this.value)" style="margin:8px 0">
-            <div style="font-size:13px; color:var(--ink)">
-              Лимит на подтверждение: <b style="color:var(--teal-d)" id="dl-res">9.0 ч.</b>
-            </div>
-            <div style="font-size:11px; color:var(--mut); margin-top:2px" id="dl-note">Буфер безопасности для клиента: 1.0 ч.</div>
-          </div>
-        </div>
-
-        <!-- Карточка 2: Глубокая аналитика -->
-        <div class="card">
-          <span class="logo-pill">Все метрики в одном окне</span>
-          <h3 style="margin-top:12px; font-size:22px">Глубокая аналитика</h3>
-          <p style="margin-top:8px; font-size:14px">
-            Моментальный срез: выручка, подтвержденные, отмененные и истекшие записи. Вся воронка конверсии в реальном времени.
-          </p>
-          <div class="grid-2" style="gap:10px; margin-top:16px">
-            <div style="padding:12px; background:var(--tp); border-radius:14px">
-              <b style="font-size:22px">5 520 BYN</b>
-              <div style="font-size:11px; color:var(--mut)">Выручка за период</div>
-            </div>
-            <div style="padding:12px; background:var(--tp); border-radius:14px">
-              <b style="font-size:22px; color:var(--teal-d)">82%</b>
-              <div style="font-size:11px; color:var(--mut)">Загрузка персонала</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Карточка 3: Бесшовная интеграция + слот под скриншот -->
-        <div class="card">
-          <span class="logo-pill" style="background:var(--coral-l); color:#a4482c">Экосистема</span>
-          <h3 style="margin-top:12px; font-size:22px">Бесшовная интеграция</h3>
-          <p style="margin-top:8px; font-size:14px">
-            Прямая двусторонняя синхронизация с <b>Google Calendar</b> (учет общей занятости персонала) и мгновенные уведомления в <b>Telegram</b> и <b>Email</b>.
-          </p>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:18px">
-            <span class="pill" style="font-size:12px; padding:6px 12px"><i></i> Google Calendar</span>
-            <span class="pill" style="font-size:12px; padding:6px 12px"><i style="background:var(--coral)"></i> Telegram Bot</span>
-            <span class="pill" style="font-size:12px; padding:6px 12px"><i style="background:var(--ink)"></i> Email</span>
-          </div>
-        </div>
-      </div>
+    <div class="tg rise">
+      <div class="tg-h"><span class="av">СС</span><span><b>Салон «Север»</b><small>бот</small></span></div>
+      <div class="bub">Вы записаны: Стрижка, Анна, 27.10.2026 в 14:30. Отменить или перенести: on-time.by/c/…<time>09:12</time></div>
+      <div class="bub">Напоминаем: завтра в 14:30 — Стрижка в «Север».<time>вчера</time></div>
+      <div class="bub">Освободилось время: Окрашивание, 28.10.2026 в 15:00. Успейте записаться<time>14:37</time></div>
+      <div class="kb"><span>Записаться</span></div>
+      <div class="bub me">А можно перенести на четверг?<time>14:40</time></div>
+      <div class="bub">Конечно. В четверг у Анны свободно в 11:00 и 16:30. Какое время удобнее?<time>14:40</time></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- СЛАЙД 10: FINTECH ИННОВАЦИЯ (МАРШРУТИЗАЦИЯ ПЛАТЕЖЕЙ) -->
-  <section class="slide" data-title="10. Fintech Инновация" data-orb-x="0.5" data-orb-y="0.5" data-orb-s="220" data-orb-h="0.6">
-    <div class="slide-inner stagger">
-      <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px">
-        <div>
-          <div class="eyebrow">Fintech Инновация</div>
-          <h2>Маршрутизация платежей без потерь</h2>
-          <p class="lead" style="margin-top:10px">
-            Мы выступаем маршрутизатором: клиент платит комиссию онлайн, а эквайринг мы полностью берем на себя. Организация не несет скрытых потерь.
-          </p>
-        </div>
-        <div style="background:#fff; padding:12px 18px; border-radius:16px; border:1px solid var(--line); display:flex; align-items:center; gap:12px">
-          <span style="font-size:13px; color:var(--mut)">Стоимость услуги:</span>
-          <input type="number" id="fin-price" value="100" min="10" max="1000" step="10" style="width:85px; padding:6px 10px; border:1px solid var(--line); border-radius:8px; font:600 15px Inter" oninput="updateFintech()">
-          <span style="font-weight:600">BYN</span>
-          <button class="btn teal" onclick="pulseFintech()">Провести сплит →</button>
-        </div>
-      </div>
-
-      <div class="fintech-flow" id="fintech-flow">
-        <div class="card">
-          <span class="logo-pill">Шаг 1 · Capture</span>
-          <h3 style="margin-top:12px; font-size:22px">Списание и Сплит</h3>
-          <div class="big-stat ink" style="font-size:42px; margin:12px 0" id="fin-total">103.5 BYN</div>
-          <p style="font-size:14px">
-            Клиент бронирует онлайн. Банк автоматически расщепляет (сплитует) транзакцию на <b>два IBAN-счета</b> в момент Capture.
-          </p>
-        </div>
-
-        <div class="flow-arrow">➔</div>
-
-        <div class="card teal-tint">
-          <span class="logo-pill" style="background:#fff">IBAN Организации</span>
-          <h3 style="margin-top:12px; font-size:22px">100% Бизнесу</h3>
-          <div class="big-stat teal" style="font-size:42px; margin:12px 0" id="fin-biz">100 BYN</div>
-          <p style="font-size:14px; color:var(--teal-d)">
-            Организация получает ровно 100% стоимости своей услуги. <b>Без скрытых процентов</b> и комиссий за эквайринг.
-          </p>
-        </div>
-
-        <div class="flow-arrow">＋</div>
-
-        <div class="card coral-tint">
-          <span class="logo-pill" style="background:#fff; color:#a4482c">IBAN Платформы</span>
-          <h3 style="margin-top:12px; font-size:22px">Доход Платформы</h3>
-          <div class="big-stat" style="font-size:42px; margin:12px 0" id="fin-fee">3.5 BYN</div>
-          <p style="font-size:14px; color:#6e4335">
-            Комиссия клиента: <b>max(0.99 BYN; 3.5%)</b>. Из неё мы оплачиваем банковский эквайринг, оставляя себе чистую прибыль.
-          </p>
-        </div>
-      </div>
+<!-- 10 · Under the hood + niches -->
+<section class="slide" data-title="Деталь 08 · Под капотом">
+  <div class="inner rise">
+    <div class="kick"><div class="slot" data-k=".9" data-h=".5"></div><div class="eyebrow">Деталь <span class="n">08</span> · Под капотом</div></div>
+    <h2>Сделано для Беларуси и для любого бизнеса, который продаёт время</h2>
+    <div class="g3" style="margin-top:24px">
+      <div class="card"><h3>Регистрация по УНП</h3><p>УНП проверяется по публичному реестру МНС. Если реестр недоступен, регистрация не блокируется: проверка повторяется каждый час.</p></div>
+      <div class="card"><h3>Минское время и BYN</h3><p>Время хранится в UTC, показывается и считается по <code>Europe/Minsk</code>. Цены — в BYN.</p></div>
+      <div class="card"><h3>Целостность в базе</h3><p>Внешние ключи и проверки в PostgreSQL, подписанные ссылки, шифрование ключей (Fernet).</p></div>
     </div>
-  </section>
-
-  <!-- СЛАЙД 11: ГЛОБАЛЬНЫЙ ПОТЕНЦИАЛ -->
-  <section class="slide" data-title="11. Глобальный потенциал" data-orb-x="0.75" data-orb-y="0.35" data-orb-s="240" data-orb-h="0.35">
-    <div class="slide-inner stagger">
-      <div>
-        <div class="eyebrow">Глобальный потенциал</div>
-        <h2>Архитектура для любой ниши услуг</h2>
-        <p class="lead" style="margin-top:12px">
-          Мы автоматизируем продажу времени везде: от барбершопов и салонов красоты до частных медицинских кабинетов, стоматологий и индивидуальных предпринимателей.
-        </p>
-      </div>
-
-      <div class="grid-4" style="margin-top:28px">
-        <div class="card">
-          <h3>Beauty & Барбершопы</h3>
-          <p style="font-size:13px; margin-top:6px">Парикмахерские, колористика, ногтевой сервис и SPA-салоны с поддержкой AI Камеры.</p>
-        </div>
-        <div class="card">
-          <h3>Частная медицина</h3>
-          <p style="font-size:13px; margin-top:6px">Стоматологии, косметология и частные врачебные кабинеты без очередей на ресепшене.</p>
-        </div>
-        <div class="card">
-          <h3>Спорт и Велнес</h3>
-          <p style="font-size:13px; margin-top:6px">Персональные тренеры, студии йоги, массажные кабинеты и реабилитация.</p>
-        </div>
-        <div class="card">
-          <h3>Эксперты и ИП</h3>
-          <p style="font-size:13px; margin-top:6px">Консультанты, юристы, репетиторы и локальные сервисные мастера.</p>
-        </div>
-      </div>
-
-      <div class="card dark" style="margin-top:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; padding:22px 32px">
-        <div style="display:flex; align-items:center; gap:14px">
-          <span style="width:12px; height:12px; border-radius:50%; background:var(--teal); display:inline-block; box-shadow:0 0 12px var(--teal)"></span>
-          <span style="font-size:18px; font-weight:400">Первые B2B клиенты уже готовы к интеграции платформы</span>
-        </div>
-      </div>
+    <div style="margin-top:22px;display:grid;gap:12px">
+      <div><div class="lbl">Для кого</div><div class="chips"><span class="chip t">Салоны и барбершопы</span><span class="chip t">Ногтевой сервис и SPA</span><span class="chip t">Стоматологии и косметология</span><span class="chip t">Тренеры и студии йоги</span><span class="chip t">Массаж и реабилитация</span><span class="chip t">Репетиторы и консультанты</span></div></div>
+      <div><div class="lbl">Стек</div><div class="chips"><span class="chip">Python 3.12 · FastAPI</span><span class="chip">PostgreSQL</span><span class="chip">React 18 · Vite</span><span class="chip">React Flow</span><span class="chip">Docker · nginx</span><span class="chip">Google Calendar API</span><span class="chip">Telegram Bot API</span></div></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- СЛАЙД 12: ПРОГНОЗ И ВАЛИДАЦИЯ ЭКОНОМИКИ (ОДНА НИША) -->
-  <section class="slide" data-title="12. Прогноз экономики" data-orb-x="0.2" data-orb-y="0.6" data-orb-s="220" data-orb-h="0.5">
-    <div class="slide-inner stagger">
-      <div>
-        <div class="eyebrow">Прогноз (одна ниша — рынок РБ)</div>
-        <h2>Прогнозируемая валидация экономики за первые 12 мес</h2>
-      </div>
-
-      <div class="grid-4" style="margin-top:24px">
-        <div class="card teal-tint">
-          <span class="logo-pill" style="background:#fff">Net Profit / мес</span>
-          <div class="big-stat teal" style="font-size:44px">$16,000+</div>
-          <h3>Чистая прибыль</h3>
-          <p style="font-size:13px; margin-top:6px; color:var(--teal-d)">Ежемесячная чистая прибыль платформы после вычета всех расходов.</p>
-        </div>
-
-        <div class="card">
-          <span class="logo-pill">Доля рынка РБ</span>
-          <div class="big-stat ink" style="font-size:44px">1,000</div>
-          <h3>Парикмахерских</h3>
-          <p style="font-size:13px; margin-top:6px">Активных салонов из 7,000 на рынке РБ. В среднем по 3 мастера в каждом.</p>
-        </div>
-
-        <div class="card">
-          <span class="logo-pill" style="background:var(--coral-l); color:#a4482c">Конверсия в AI</span>
-          <div class="big-stat" style="font-size:44px">5 AI / 90</div>
-          <h3>Подписок на мастера</h3>
-          <p style="font-size:13px; margin-top:6px">Из 90 клиентов одного мастера всего 5 оформят премиум AI-подписку (29.99 BYN/мес).</p>
-        </div>
-
-        <div class="card dark">
-          <span class="logo-pill" style="background:var(--teal); color:#fff">Gross Revenue / мес</span>
-          <div class="big-stat" style="font-size:44px; color:#fff">$37,000+</div>
-          <h3 style="color:#fff">Выручка в месяц</h3>
-          <p style="font-size:13px; margin-top:6px">Прогнозируемая ежемесячная выручка платформы.</p>
-        </div>
-      </div>
-
-      <!-- Интерактивный калькулятор тарифа B2B из index.html -->
-      <div class="card soft" style="margin-top:20px; padding:20px 28px; display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:24px; align-items:center">
-        <div>
-          <h3 style="font-size:17px">Калькулятор тарифа для одной организации (BYN/мес)</h3>
-          <p style="font-size:13px; margin-top:4px">База (админ): <b>45 BYN</b> + <b>9 BYN</b> за мастера + <b>1.5 BYN</b> за услугу</p>
-        </div>
-        <div>
-          <label style="font-size:12px; display:flex; justify-content:space-between"><span>Мастеров:</span><b id="u-m-val">3</b></label>
-          <input type="range" id="u-m" min="1" max="25" value="3" oninput="calcUnit()">
-          <label style="font-size:12px; display:flex; justify-content:space-between; margin-top:6px"><span>Услуг:</span><b id="u-s-val">12</b></label>
-          <input type="range" id="u-s" min="1" max="60" value="12" oninput="calcUnit()">
-        </div>
-        <div style="text-align:right">
-          <span style="font-size:12px; color:var(--mut)">Фиксированный чек B2B:</span>
-          <div style="font-size:32px; font-weight:300; color:var(--ink)" id="u-tot">90 BYN <small style="font-size:14px; color:var(--mut)">/мес</small></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- СЛАЙД 13: ИНВЕСТИЦИОННЫЙ ЗАПРОС И КОМАНДА -->
-  <section class="slide" data-title="13. Инвестиционный запрос и Команда" data-orb-x="0.72" data-orb-y="0.5" data-orb-s="260" data-orb-h="0.45">
-    <div class="slide-inner grid-2-asym stagger">
-      <div>
-        <div class="eyebrow">Инвестиционный запрос</div>
-        <h2>Необходимые ресурсы</h2>
-
-        <div class="card dark" style="margin-top:20px">
-          <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:12px">
-            <div class="big-stat" style="color:#fff; margin:0">$75,000</div>
-            <span class="logo-pill" style="background:var(--teal); color:#fff; font-size:13px">Срок: 12 месяцев</span>
-          </div>
-          <p style="margin-top:12px; font-size:14px">
-            Инвестиции направлены на обеспечение технической устойчивости, маркетинг (рекламу) и захват лидирующей доли рынка.
-          </p>
-
-          <div class="grid-2" style="gap:12px; margin-top:18px">
-            <div style="padding:12px 14px; background:#191919; border-radius:14px; border:1px solid #2c2c2c">
-              <b style="color:var(--teal); font-size:14px">01 · Инфраструктура</b>
-              <div style="font-size:12px; color:#aaa; margin-top:2px">Сервера, GPU и внешние API</div>
-            </div>
-            <div style="padding:12px 14px; background:#191919; border-radius:14px; border:1px solid #2c2c2c">
-              <b style="color:var(--coral); font-size:14px">02 · Команда</b>
-              <div style="font-size:12px; color:#aaa; margin-top:2px">Зарплатный фонд разработки</div>
-            </div>
-            <div style="padding:12px 14px; background:#191919; border-radius:14px; border:1px solid #2c2c2c">
-              <b style="color:#fff; font-size:14px">03 · Маркетинг</b>
-              <div style="font-size:12px; color:#aaa; margin-top:2px">Трафик и привлечение B2B лидов</div>
-            </div>
-            <div style="padding:12px 14px; background:#191919; border-radius:14px; border:1px solid #2c2c2c">
-              <b style="color:#d8d2cb; font-size:14px">04 · Workspace</b>
-              <div style="font-size:12px; color:#aaa; margin-top:2px">Аренда офиса и операции</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Основатели и Финальный слоган -->
-      <!-- <div>
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
-            <h3>Основатели проекта</h3>
-            <span class="logo-pill">We born to help</span>
-          </div>
-          <div class="grid-2" style="gap:16px">
-            <div>
-              <div class="photo-slot portrait has-image" data-slot="founder-1" data-default-src="vladislav.jpg" style="border-radius:16px; border:1px dashed var(--line)">
-                <img src="vladislav.jpg" alt="Владислав Буель">
-                <div class="slot-placeholder">
-                  <div class="slot-icon">👤</div>
-                  <div class="slot-title" style="font-size:12px">Фото основателя</div>
-                </div>
-                <span class="slot-change-badge">Заменить</span>
-              </div>
-              <h3 style="font-size:17px; margin-top:10px">Владислав Буель</h3>
-              <p style="font-size:13px">Co-Founder</p>
-            </div>
-            <div>
-              <div class="photo-slot portrait has-image" data-slot="founder-2" data-default-src="mikhail.jpg" style="border-radius:16px; border:1px dashed var(--line)">
-                <img src="mikhail.jpg" alt="Михаил Паньков">
-                <div class="slot-placeholder">
-                  <div class="slot-icon">👤</div>
-                  <div class="slot-title" style="font-size:12px">Фото основателя</div>
-                </div>
-                <span class="slot-change-badge">Заменить</span>
-              </div>
-              <h3 style="font-size:17px; margin-top:10px">Михаил Паньков</h3>
-              <p style="font-size:13px">Co-Founder</p>
-            </div>
-          </div>
-
-          <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center">
-            <div>
-              <div class="logo" style="font-size:26px">On<b>Time</b></div>
-              <span style="font-size:13px; color:var(--mut)">We born to help · 2026</span>
-            </div>
-            <button class="btn k" onclick="goToSlide(0)">В начало ↺</button>
-          </div>
-        </div>
-      </div> -->
-    </div>
-  </section>
+<!-- 11 · Final -->
+<section class="slide" data-title="on-time.by">
+  <div class="inner final rise">
+    <div class="slot" data-k="1" data-h=".6" style="--s:110px"></div>
+    <h2>Запишитесь в OnTime прямо сейчас</h2>
+    <a class="qr" href="https://on-time.by" target="_blank" rel="noopener" aria-label="QR-код: on-time.by">
+      <svg viewBox="-2 -2 29 29" shape-rendering="crispEdges"><path stroke="#000" d="M0 0.5h7m3 0h2m6 0h7m-25 1h1m5 0h1m2 0h3m6 0h1m5 0h1m-25 1h1m1 0h3m1 0h1m4 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m1 0h5m5 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m5 0h3m3 0h1m1 0h3m1 0h1m-25 1h1m5 0h1m1 0h1m2 0h1m6 0h1m5 0h1m-25 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-17 1h4m3 0h2m-16 1h2m3 0h1m4 0h4m1 0h1m1 0h2m1 0h1m-21 1h2m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m2 0h2m1 0h1m1 0h2m-24 1h2m1 0h1m1 0h2m1 0h1m1 0h2m2 0h1m5 0h2m1 0h1m-25 1h2m5 0h2m4 0h1m2 0h1m1 0h4m-22 1h1m1 0h1m3 0h4m3 0h1m1 0h5m4 0h1m-24 1h3m1 0h1m2 0h2m2 0h2m1 0h2m1 0h2m3 0h2m-25 1h2m1 0h2m1 0h1m2 0h1m2 0h4m5 0h2m1 0h1m-22 1h1m4 0h2m1 0h4m1 0h2m1 0h3m-22 1h4m2 0h4m2 0h1m1 0h1m1 0h5m2 0h1m-16 1h1m1 0h1m5 0h1m3 0h1m3 0h1m-25 1h7m2 0h2m1 0h2m2 0h1m1 0h1m1 0h1m3 0h1m-25 1h1m5 0h1m4 0h1m1 0h1m1 0h2m3 0h1m3 0h1m-25 1h1m1 0h3m1 0h1m3 0h1m2 0h8m2 0h2m-25 1h1m1 0h3m1 0h1m2 0h2m2 0h3m1 0h1m2 0h1m1 0h2m-24 1h1m1 0h3m1 0h1m1 0h1m3 0h4m3 0h3m1 0h2m-25 1h1m5 0h1m1 0h1m1 0h3m1 0h1m1 0h2m1 0h2m-21 1h7m4 0h1m4 0h3m2 0h1m2 0h1"/></svg>
+    </a>
+    <a class="url" href="https://on-time.by" target="_blank" rel="noopener">on-time.by</a>
+    <p>Наведите камеру на код или откройте ссылку</p>
+  </div>
+</section>
 
 </main>
 
-<!-- Модальное окно обзора всех слайдов -->
-<div class="overview-modal" id="overview-modal">
-  <div style="max-width:1200px; margin:auto; display:flex; justify-content:space-between; align-items:center">
-    <h2>Быстрый переход по слайдам</h2>
-    <button class="btn k" onclick="toggleOverview()">Закрыть (Esc)</button>
-  </div>
-  <div class="overview-grid" id="overview-grid"></div>
-</div>
-
-<!-- Нижняя панель управления слайдами -->
 <footer class="bottombar">
-  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-  <div>
-    <span id="slide-counter" style="font-weight:600; color:var(--ink)">01 / 13</span>
-    <span style="margin-left:12px" id="slide-title-lbl">1. О проекте OnTime</span>
-  </div>
-  <div style="display:flex; align-items:center; gap:8px">
-    <span style="font-size:12px; margin-right:8px">Навигация: клавиши ← → или Пробел</span>
-    <button class="btn" type="button" onclick="prevSlide()">← Назад</button>
-    <button class="btn k" type="button" onclick="nextSlide()">Далее →</button>
+  <span class="hint">← → или пробел · свайп на телефоне</span>
+  <div class="nav-btns">
+    <button class="btn" id="prev" aria-label="Назад">←</button>
+    <button class="btn k" id="next" aria-label="Далее">Далее →</button>
   </div>
 </footer>
+<div class="progress" id="progress"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-/* 1. Навигация по слайдам */
-const slides = Array.from(document.querySelectorAll('.slide'));
-const dotsContainer = document.getElementById('nav-dots');
-const overviewGrid = document.getElementById('overview-grid');
-const progressFill = document.getElementById('progress-fill');
-const slideCounter = document.getElementById('slide-counter');
-const slideTitleLbl = document.getElementById('slide-title-lbl');
-let currentSlide = 0;
+const slides = [...document.querySelectorAll('.slide')];
+const dots = document.getElementById('dots');
+const crumb = document.getElementById('crumb');
+const counter = document.getElementById('counter');
+const progress = document.getElementById('progress');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+const pad = n => String(n).padStart(2, '0');
+let current = -1;
 
-// target parameters for Three.js orb
-const orbTarget = { x: 0.72, y: 0.5, s: 260, h: 0.45 };
-
-slides.forEach((sl, idx) => {
-  const title = sl.dataset.title || `Слайд ${idx + 1}`;
+slides.forEach((slide, i) => {
   const dot = document.createElement('button');
-  dot.className = 'dot' + (idx === 0 ? ' active' : '');
-  dot.dataset.title = title;
-  dot.onclick = () => goToSlide(idx);
-  dotsContainer.appendChild(dot);
-
-  const ov = document.createElement('div');
-  ov.className = 'ov-card' + (idx === 0 ? ' active' : '');
-  ov.innerHTML = `<div class="ov-num">СЛАЙД ${String(idx + 1).padStart(2, '0')}</div><div class="ov-title">${title.replace(/^\d+\.\s*/, '')}</div>`;
-  ov.onclick = () => { goToSlide(idx); toggleOverview(false); };
-  overviewGrid.appendChild(ov);
+  dot.className = 'dot';
+  dot.title = slide.dataset.title;
+  dot.setAttribute('aria-label', slide.dataset.title);
+  dot.onclick = () => go(i);
+  dots.appendChild(dot);
 });
 
-function goToSlide(index) {
-  if (index < 0 || index >= slides.length) return;
-  currentSlide = index;
-  slides.forEach((sl, i) => {
-    sl.classList.toggle('active', i === currentSlide);
-    sl.classList.toggle('prev', i < currentSlide);
+function go(index) {
+  index = Math.max(0, Math.min(slides.length - 1, index));
+  if (index === current) return;
+  current = index;
+  slides.forEach((slide, i) => {
+    slide.classList.toggle('on', i === index);
+    slide.classList.toggle('past', i < index);
+    slide.setAttribute('aria-hidden', i !== index);
   });
-  Array.from(dotsContainer.children).forEach((d, i) => d.classList.toggle('active', i === currentSlide));
-  Array.from(overviewGrid.children).forEach((c, i) => c.classList.toggle('active', i === currentSlide));
-
-  const active = slides[currentSlide];
-  orbTarget.x = parseFloat(active.dataset.orbX || 0.7);
-  orbTarget.y = parseFloat(active.dataset.orbY || 0.5);
-  orbTarget.s = parseFloat(active.dataset.orbS || 220);
-  orbTarget.h = parseFloat(active.dataset.orbH || 0.5);
-
-  const pct = ((currentSlide + 1) / slides.length) * 100;
-  progressFill.style.width = pct + '%';
-  slideCounter.textContent = `${String(currentSlide + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
-  slideTitleLbl.textContent = active.dataset.title || '';
-
-  // Запуск анимации цифр при открытии слайда
-  active.querySelectorAll('.count').forEach(el => animateCount(el, +el.dataset.target));
+  [...dots.children].forEach((dot, i) => dot.classList.toggle('on', i === index));
+  slides[index].scrollTop = 0;
+  crumb.textContent = slides[index].dataset.title;
+  counter.textContent = `${pad(index + 1)} / ${pad(slides.length)}`;
+  progress.style.width = `${(index + 1) / slides.length * 100}%`;
+  prev.disabled = index === 0;
+  next.disabled = index === slides.length - 1;
+  history.replaceState(null, '', `#${index + 1}`);
 }
 
-function nextSlide() { if (currentSlide < slides.length - 1) goToSlide(currentSlide + 1); }
-function prevSlide() { if (currentSlide > 0) goToSlide(currentSlide - 1); }
+prev.onclick = () => go(current - 1);
+next.onclick = () => go(current + 1);
+document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(+b.dataset.go));
 
-window.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
-  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); nextSlide(); }
-  else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prevSlide(); }
-  else if (e.key === 'g' || e.key === 'G' || e.key === 'п' || e.key === 'П') { toggleOverview(); }
-  else if (e.key === 'f' || e.key === 'F' || e.key === 'а' || e.key === 'А') { toggleFullScreen(); }
-  else if (e.key === 'Escape') { toggleOverview(false); }
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); go(current + 1); }
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); go(current - 1); }
+  else if (e.key === 'Home') go(0);
+  else if (e.key === 'End') go(slides.length - 1);
+  else if (e.key === 'f' || e.key === 'а') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
 });
 
-// Переключение колесом мыши с защитой от слишком частых срабатываний
-let wheelLock = false;
-window.addEventListener('wheel', e => {
-  if (document.getElementById('overview-modal').classList.contains('open')) return;
-  if (wheelLock || Math.abs(e.deltaY) < 40) return;
-  wheelLock = true;
-  if (e.deltaY > 0) nextSlide(); else prevSlide();
-  setTimeout(() => { wheelLock = false; }, 650);
-}, { passive: true });
-
-function toggleOverview(force) {
-  const modal = document.getElementById('overview-modal');
-  const open = typeof force === 'boolean' ? force : !modal.classList.contains('open');
-  modal.classList.toggle('open', open);
-}
-
-function toggleFullScreen() {
-  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-  else document.exitFullscreen();
-}
-
-/* 2. Загрузка и сохранение скриншотов веб-сайта (Drag & Drop + Клик + localStorage) */
-const fileInput = document.getElementById('global-file-input');
-let activePhotoSlot = null;
-
-function applyImageToSlot(slot, dataUrl) {
-  const img = slot.querySelector('img');
-  if (!img) return;
-  img.src = dataUrl;
-  slot.classList.add('has-image');
-  const key = 'ontime_slide_img_' + slot.dataset.slot;
-  try { localStorage.setItem(key, dataUrl); } catch (e) { console.warn('Storage quota exceeded'); }
-}
-
-document.querySelectorAll('.photo-slot').forEach(slot => {
-  const key = 'ontime_slide_img_' + slot.dataset.slot;
-  const saved = localStorage.getItem(key);
-  if (saved) applyImageToSlot(slot, saved);
-
-  slot.addEventListener('click', () => {
-    activePhotoSlot = slot;
-    fileInput.value = '';
-    fileInput.click();
-  });
-
-  slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('dragover'); });
-  slot.addEventListener('dragleave', () => slot.classList.remove('dragover'));
-  slot.addEventListener('drop', e => {
-    e.preventDefault();
-    slot.classList.remove('dragover');
-    const file = e.dataTransfer.files && e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) readImageFile(file, slot);
-  });
+let touch = null;
+addEventListener('touchstart', e => { touch = [e.touches[0].clientX, e.touches[0].clientY]; }, { passive: true });
+addEventListener('touchend', e => {
+  if (!touch) return;
+  const dx = e.changedTouches[0].clientX - touch[0];
+  const dy = e.changedTouches[0].clientY - touch[1];
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(current + (dx < 0 ? 1 : -1));
+  touch = null;
 });
 
-fileInput.addEventListener('change', e => {
-  const file = e.target.files && e.target.files[0];
-  if (file && activePhotoSlot) readImageFile(file, activePhotoSlot);
-});
+addEventListener('hashchange', () => go(parseInt(location.hash.slice(1), 10) - 1 || 0));
+go(parseInt(location.hash.slice(1), 10) - 1 || 0);
 
-function readImageFile(file, slot) {
-  const reader = new FileReader();
-  reader.onload = ev => applyImageToSlot(slot, ev.target.result);
-  reader.readAsDataURL(file);
-}
-
-function clearSavedPhotos() {
-  document.querySelectorAll('.photo-slot').forEach(slot => {
-    localStorage.removeItem('ontime_slide_img_' + slot.dataset.slot);
-    const img = slot.querySelector('img');
-    const fallback = slot.dataset.defaultSrc || '';
-    if (img) img.src = fallback;
-    slot.classList.toggle('has-image', !!fallback);
-  });
-}
-
-/* 3. Интерактивные виджеты на слайдах */
-function animateCount(el, target) {
-  let start = 0;
-  const duration = 900;
-  const t0 = performance.now();
-  function step(now) {
-    const p = Math.min(1, (now - t0) / duration);
-    el.textContent = Math.round(start + (target - start) * (1 - Math.pow(1 - p, 3)));
-    if (p < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-function calcLoss() {
-  const rev = +document.getElementById('loss-rev').value;
-  document.getElementById('loss-rev-val').textContent = rev.toLocaleString('ru-RU') + ' BYN';
-  const loss = Math.round(rev * 0.45);
-  document.getElementById('loss-total').textContent = 'до ' + loss.toLocaleString('ru-RU') + ' BYN';
-}
-
-function switchShowcase(idx, btn) {
-  document.querySelectorAll('.showcase-pane').forEach((p, i) => p.style.display = i === idx ? 'grid' : 'none');
-  btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-function calcDeadline(hours) {
-  document.getElementById('dl-hours-lbl').textContent = hours + ' ч.';
-  const limit = (hours * 0.9).toFixed(1);
-  const buffer = (hours * 0.1).toFixed(1);
-  document.getElementById('dl-res').textContent = limit + ' ч.';
-  document.getElementById('dl-note').textContent = `Буфер безопасности для клиента: ${buffer} ч.`;
-}
-
-function updateFintech() {
-  const price = Math.max(0, +document.getElementById('fin-price').value || 0);
-  const fee = Math.max(0.99, price * 0.035);
-  const total = price + fee;
-  const fmt = (n) => n.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
-  document.getElementById('fin-total').textContent = fmt(total) + ' BYN';
-  document.getElementById('fin-biz').textContent = fmt(price) + ' BYN';
-  document.getElementById('fin-fee').textContent = fmt(fee) + ' BYN';
-}
-
-function pulseFintech() {
-  const fl = document.getElementById('fintech-flow');
-  fl.classList.add('pulsing');
-  setTimeout(() => fl.classList.remove('pulsing'), 600);
-}
-
-function calcUnit() {
-  const m = +document.getElementById('u-m').value;
-  const s = +document.getElementById('u-s').value;
-  document.getElementById('u-m-val').textContent = m;
-  document.getElementById('u-s-val').textContent = s;
-  const total = 45 + 9 * m + 1.5 * s;
-  document.getElementById('u-tot').innerHTML = `${total.toLocaleString('ru-RU')} BYN <small style="font-size:14px; color:var(--mut)">/мес</small>`;
-}
-
-/* 4. Фирменная 3D-сфера OnTime (Three.js шейдер из index.html) */
+/* The landing's Three.js shader orb: it flies to the .slot of the open slide */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 try {
-  const canvas = document.getElementById('orb-canvas');
+  const canvas = document.getElementById('orb');
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -3000, 3000);
   camera.position.z = 10;
-
-  const uniforms = {
-    t: { value: 0 },
-    k: { value: 0.9 },
-    h: { value: 0.45 }
-  };
-
+  const u = { t: { value: 0 }, k: { value: .9 }, h: { value: .5 } };
   const material = new THREE.ShaderMaterial({
-    uniforms,
-    vertexShader: `
-      uniform float t;
-      uniform float k;
-      varying vec3 vN;
-      varying vec3 vP;
-      void main() {
-        vec3 p = position;
-        float d = sin(p.x*2.+t)*sin(p.y*2.3+t*1.1)*sin(p.z*2.1+t*.9);
-        p += normal * d * .2 * k;
-        vP = p;
-        vN = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.);
-      }
-    `,
-    fragmentShader: `
-      uniform float t;
-      uniform float h;
-      varying vec3 vN;
-      varying vec3 vP;
-      void main() {
-        float n = (sin(vP.x*2.2+t*.7)+sin(vP.y*2.6-t*.5)+sin(vP.z*2.3+t*.6))/6.+.5;
-        vec3 teal = vec3(.23,.61,.63), coral = vec3(.88,.52,.42), dark = vec3(.08,.2,.22), cream = vec3(.99,.97,.95);
-        vec3 col = mix(teal, coral, smoothstep(.3,.7,n+(h-.5)*.9));
-        col = mix(col, dark, smoothstep(.62,.95,1.-n)*.35);
-        float l = dot(vN, normalize(vec3(-.5,.7,.8)))*.5+.5;
-        col *= .78 + .34 * l;
-        col = mix(col, cream, pow(1.-abs(vN.z),3.)*.5);
-        gl_FragColor = vec4(col, 1.);
-      }
-    `
+    uniforms: u,
+    vertexShader: `uniform float t;uniform float k;varying vec3 vN;varying vec3 vP;void main(){vec3 p=position;float d=sin(p.x*2.+t)*sin(p.y*2.3+t*1.1)*sin(p.z*2.1+t*.9);p+=normal*d*.2*k;vP=p;vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`,
+    fragmentShader: `uniform float t;uniform float h;varying vec3 vN;varying vec3 vP;void main(){
+float n=(sin(vP.x*2.2+t*.7)+sin(vP.y*2.6-t*.5)+sin(vP.z*2.3+t*.6))/6.+.5;
+vec3 teal=vec3(.23,.61,.63),coral=vec3(.88,.52,.42),dark=vec3(.08,.2,.22),cream=vec3(.99,.97,.95);
+vec3 col=mix(teal,coral,smoothstep(.3,.7,n+(h-.5)*.9));
+col=mix(col,dark,smoothstep(.62,.95,1.-n)*.35);
+float l=dot(vN,normalize(vec3(-.5,.7,.8)))*.5+.5;col*=.78+.34*l;
+col=mix(col,cream,pow(1.-abs(vN.z),3.)*.5);
+gl_FragColor=vec4(col,1.);}`
   });
+  const orb = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 48), material);
+  scene.add(orb);
 
-  const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 48), material);
-  scene.add(mesh);
-
-  let W = window.innerWidth, H = window.innerHeight;
-  let mx = 0, my = 0;
-  const cur = { x: W * 0.72, y: H * 0.5, s: 240 };
-
-  window.addEventListener('pointermove', e => {
-    mx = e.clientX / W - 0.5;
-    my = e.clientY / H - 0.5;
-  });
-
-  function onResize() {
-    W = window.innerWidth; H = window.innerHeight;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  let W = 1, H = 1, mx = 0, my = 0;
+  const cur = { x: innerWidth * .7, y: innerHeight * .5, s: 200 };
+  addEventListener('pointermove', e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; });
+  function resize() {
+    W = innerWidth; H = innerHeight;
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(W, H, false);
-    camera.left = -W / 2; camera.right = W / 2;
-    camera.top = H / 2; camera.bottom = -H / 2;
+    camera.left = -W / 2; camera.right = W / 2; camera.top = H / 2; camera.bottom = -H / 2;
     camera.updateProjectionMatrix();
   }
-  onResize();
-  window.addEventListener('resize', onResize);
+  resize();
+  addEventListener('resize', resize);
 
   const clock = new THREE.Clock();
-  function animateOrb() {
-    const tx = orbTarget.x * W;
-    const ty = orbTarget.y * H;
-    cur.x += (tx - cur.x) * 0.06;
-    cur.y += (ty - cur.y) * 0.06;
-    cur.s += (orbTarget.s - cur.s) * 0.06;
-    uniforms.h.value += (orbTarget.h - uniforms.h.value) * 0.05;
-    uniforms.t.value = clock.getElapsedTime() * 0.75;
-
-    mesh.scale.set(cur.s, cur.s, cur.s);
-    mesh.position.set(cur.x - W / 2, H / 2 - cur.y, 0);
-    mesh.rotation.y += (mx * 1.1 - mesh.rotation.y) * 0.04;
-    mesh.rotation.x += (my * 0.8 - mesh.rotation.x) * 0.04;
-
+  (function frame() {
+    const slot = slides[current].querySelector('.slot');
+    if (slot) {
+      const q = slot.getBoundingClientRect();
+      const f = reduced ? 1 : .1;
+      const dx = (q.left + q.width / 2 - cur.x) * f, dy = (q.top + q.height / 2 - cur.y) * f;
+      cur.x += dx; cur.y += dy; cur.s += (q.width / 2.2 - cur.s) * f;
+      const sx = Math.min(Math.abs(dx) * .012, .3), sy = Math.min(Math.abs(dy) * .012, .3);
+      orb.scale.set(cur.s * (1 + sx - sy * .5), cur.s * (1 + sy - sx * .5), cur.s);
+      u.k.value += ((+slot.dataset.k || .9) - u.k.value) * .06;
+      u.h.value += ((+slot.dataset.h || .5) - u.h.value) * .06;
+    }
+    orb.position.set(cur.x - W / 2, H / 2 - cur.y, 0);
+    if (!reduced) u.t.value = clock.getElapsedTime() * .8;
+    orb.rotation.y += (mx * 1.2 - orb.rotation.y) * .04;
+    orb.rotation.x += (my * .8 - orb.rotation.x) * .04;
     renderer.render(scene, camera);
-    requestAnimationFrame(animateOrb);
-  }
-  animateOrb();
-} catch (err) {
-  console.warn('WebGL fallback:', err);
+    requestAnimationFrame(frame);
+  })();
+} catch (e) {
+  document.body.classList.add('no-gl');
 }
 </script>
 </body>
