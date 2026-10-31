@@ -148,6 +148,11 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   font: 500 13px var(--mono); color: var(--mut); background: repeating-linear-gradient(135deg, var(--tp) 0 12px, var(--bg) 12px 24px);
 }
 
+/* Process diagrams: shown whole, never cropped; no marker to wait for */
+.shot.diagram img { object-fit: contain; }
+.feat.on.plain .gain { transition-delay: .1s; }
+.plain .lead { margin-top: 16px; }
+
 /* Competitor table */
 .cmp-wrap { margin-top: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; background: var(--card); box-shadow: var(--sh); }
 .cmp { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -305,11 +310,39 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   </div>
 </section>
 
-<!-- 01 · Запись -->
+<!-- 01 · Фазы жизненного цикла -->
+<section class="slide feat plain" data-title="Фазы жизненного цикла продукта">
+  <div class="inner">
+    <div>
+      <div class="kick"><div class="slot" data-k="1.1" data-h=".4"></div><div class="eyebrow"><span class="n">01</span> Жизненный цикл</div></div>
+      <h2 class="gain">Три фазы <em>AI-DLC</em></h2>
+      <p class="lead">Замысел, разработка и эксплуатация: от идеи через блоки работ и короткие итерации до работы в продакшене.</p>
+    </div>
+    <figure class="shot diagram" data-file="Product Lifecycle Phases.png">
+      <img src="Product%20Lifecycle%20Phases.png" alt="Схема AI-DLC: роли, фазы замысла, разработки и эксплуатации, артефакты каждой фазы">
+    </figure>
+  </div>
+</section>
+
+<!-- 02 · Шаги процесса -->
+<section class="slide feat plain" data-title="Шаги процесса">
+  <div class="inner">
+    <div>
+      <div class="kick"><div class="slot" data-k=".7" data-h=".7"></div><div class="eyebrow"><span class="n">02</span> Шаги процесса</div></div>
+      <h2 class="gain">Девять шагов, <em>контекст растёт</em></h2>
+      <p class="lead">Каждый шаг передаёт следующему более богатый контекст.</p>
+    </div>
+    <figure class="shot diagram" data-file="Process Steps.png">
+      <img src="Process%20Steps.png" alt="Девять шагов процесса по фазам замысла, разработки и эксплуатации: от построения контекста по существующему коду до деплоя, мониторинга и управления инцидентами">
+    </figure>
+  </div>
+</section>
+
+<!-- 03 · Запись -->
 <section class="slide feat" data-title="Онлайн-запись 24/7 за минуту">
   <div class="inner">
     <div>
-      <div class="kick"><div class="slot" data-k=".9" data-h=".5"></div><div class="eyebrow"><span class="n">01</span> Запись</div></div>
+      <div class="kick"><div class="slot" data-k=".9" data-h=".5"></div><div class="eyebrow"><span class="n">03</span> Запись</div></div>
       <p class="pain">Запись только по телефону<svg class="strike" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 12 C 20 8, 38 13, 55 9 S 85 7, 98 10"/></svg></p>
       <h2 class="gain">Онлайн-запись <em>24/7</em> за&nbsp;минуту</h2>
     </div>
@@ -320,11 +353,11 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   </div>
 </section>
 
-<!-- 02 · Страница записи -->
+<!-- 04 · Страница записи -->
 <section class="slide feat" data-title="Только свободное время">
   <div class="inner">
     <div>
-      <div class="kick"><div class="slot" data-k=".5" data-h=".3"></div><div class="eyebrow"><span class="n">02</span> Страница записи</div></div>
+      <div class="kick"><div class="slot" data-k=".5" data-h=".3"></div><div class="eyebrow"><span class="n">04</span> Страница записи</div></div>
       <p class="pain">Накладки и двойные записи<svg class="strike" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 12 C 20 8, 38 13, 55 9 S 85 7, 98 10"/></svg></p>
       <h2 class="gain">Только <em>свободное</em> время</h2>
     </div>
@@ -335,11 +368,11 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   </div>
 </section>
 
-<!-- 03 · Google Calendar -->
+<!-- 05 · Google Calendar -->
 <section class="slide feat" data-title="Всё в Google Calendar">
   <div class="inner">
     <div>
-      <div class="kick"><div class="slot" data-k=".8" data-h=".5"></div><div class="eyebrow"><span class="n">03</span> Google Calendar</div></div>
+      <div class="kick"><div class="slot" data-k=".8" data-h=".5"></div><div class="eyebrow"><span class="n">05</span> Google Calendar</div></div>
       <p class="pain">Расписание только на платформе<svg class="strike" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 12 C 20 8, 38 13, 55 9 S 85 7, 98 10"/></svg></p>
       <h2 class="gain">Всё в <em>Google Calendar</em></h2>
     </div>
@@ -350,11 +383,11 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   </div>
 </section>
 
-<!-- 04 · Напоминания -->
+<!-- 06 · Напоминания -->
 <section class="slide feat" data-title="Напоминания уходят сами">
   <div class="inner">
     <div>
-      <div class="kick"><div class="slot" data-k="1.3" data-h=".75"></div><div class="eyebrow"><span class="n">04</span> Напоминания</div></div>
+      <div class="kick"><div class="slot" data-k="1.3" data-h=".75"></div><div class="eyebrow"><span class="n">06</span> Напоминания</div></div>
       <p class="pain">Клиенты забывают о визите<svg class="strike" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 12 C 20 8, 38 13, 55 9 S 85 7, 98 10"/></svg></p>
       <h2 class="gain">Напоминания приходят <em>сами</em></h2>
     </div>
@@ -365,11 +398,11 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   </div>
 </section>
 
-<!-- 05 · Лист ожидания -->
+<!-- 07 · Лист ожидания -->
 <section class="slide feat" data-title="Освободится — сразу узнаете">
   <div class="inner">
     <div>
-      <div class="kick"><div class="slot" data-k=".35" data-h=".15"></div><div class="eyebrow"><span class="n">05</span> Лист ожидания</div></div>
+      <div class="kick"><div class="slot" data-k=".35" data-h=".15"></div><div class="eyebrow"><span class="n">07</span> Лист ожидания</div></div>
       <p class="pain">Нужное время занято<svg class="strike" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 12 C 20 8, 38 13, 55 9 S 85 7, 98 10"/></svg></p>
       <h2 class="gain">Освободится — <em>сразу узнаете</em></h2>
     </div>
@@ -380,13 +413,13 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   </div>
 </section>
 
-<!-- 06 · AI-администратор -->
-<section class="slide feat" data-title="AI отвечает и записывает">
+<!-- 08 · AI-администратор -->
+<section class="slide feat" data-title="AI консультирует и записывает">
   <div class="inner">
     <div>
-      <div class="kick"><div class="slot" data-k="1.7" data-h=".9"></div><div class="eyebrow"><span class="n">06</span> AI-администратор</div></div>
+      <div class="kick"><div class="slot" data-k="1.7" data-h=".9"></div><div class="eyebrow"><span class="n">08</span> AI-администратор</div></div>
       <p class="pain">Никто не берёт трубку<svg class="strike" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 12 C 20 8, 38 13, 55 9 S 85 7, 98 10"/></svg></p>
-      <h2 class="gain">AI отвечает и <em>записывает</em></h2>
+      <h2 class="gain">AI консультирует и <em>записывает</em></h2>
     </div>
     <figure class="shot" data-file="shots/ai-chat.png">
       <div class="mock-bar"><i></i><i></i><i></i><span>on-time.by · Веб-чат</span></div>
@@ -395,11 +428,11 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   </div>
 </section>
 
-<!-- 07 · Telegram и Email -->
+<!-- 09 · Telegram и Email -->
 <section class="slide feat" data-title="Уведомления бесплатно">
   <div class="inner">
     <div>
-      <div class="kick"><div class="slot" data-k=".6" data-h=".5"></div><div class="eyebrow"><span class="n">07</span> Telegram и Email</div></div>
+      <div class="kick"><div class="slot" data-k=".6" data-h=".5"></div><div class="eyebrow"><span class="n">09</span> Telegram и Email</div></div>
       <p class="pain">SMS стоят денег<svg class="strike" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 12 C 20 8, 38 13, 55 9 S 85 7, 98 10"/></svg></p>
       <h2 class="gain">Уведомления <em>бесплатно</em></h2>
     </div>
@@ -410,10 +443,10 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
   </div>
 </section>
 
-<!-- 08 · Competitors -->
+<!-- 10 · Competitors -->
 <section class="slide cmp-slide" data-title="Сравнение с конкурентами">
   <div class="inner rise">
-    <div class="kick"><div class="slot" data-k="1" data-h=".6"></div><div class="eyebrow"><span class="n">08</span> Сравнение</div></div>
+    <div class="kick"><div class="slot" data-k="1" data-h=".6"></div><div class="eyebrow"><span class="n">10</span> Сравнение</div></div>
     <h2 class="gain">Всё нужное — <em>в одном сервисе</em></h2>
     <div class="cmp-wrap">
       <table class="cmp">
@@ -444,7 +477,7 @@ code { background: var(--tp); border: 1px solid var(--line); border-radius: 6px;
 <section class="slide" data-title="on-time.by">
   <div class="inner final rise">
     <div class="slot" data-k="1" data-h=".6" style="--s:110px"></div>
-    <h2>OnTime готов к первым клиентам. А ты?</h2>
+    <!-- <h2>OnTime готов к первым клиентам. А ты?</h2> -->
     <a class="qr" href="https://on-time.by" target="_blank" rel="noopener" aria-label="QR-код: on-time.by">
       <svg viewBox="-2 -2 29 29" shape-rendering="crispEdges"><path stroke="#000" d="M0 0.5h7m3 0h2m6 0h7m-25 1h1m5 0h1m2 0h3m6 0h1m5 0h1m-25 1h1m1 0h3m1 0h1m4 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m1 0h5m5 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m5 0h3m3 0h1m1 0h3m1 0h1m-25 1h1m5 0h1m1 0h1m2 0h1m6 0h1m5 0h1m-25 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-17 1h4m3 0h2m-16 1h2m3 0h1m4 0h4m1 0h1m1 0h2m1 0h1m-21 1h2m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m2 0h2m1 0h1m1 0h2m-24 1h2m1 0h1m1 0h2m1 0h1m1 0h2m2 0h1m5 0h2m1 0h1m-25 1h2m5 0h2m4 0h1m2 0h1m1 0h4m-22 1h1m1 0h1m3 0h4m3 0h1m1 0h5m4 0h1m-24 1h3m1 0h1m2 0h2m2 0h2m1 0h2m1 0h2m3 0h2m-25 1h2m1 0h2m1 0h1m2 0h1m2 0h4m5 0h2m1 0h1m-22 1h1m4 0h2m1 0h4m1 0h2m1 0h3m-22 1h4m2 0h4m2 0h1m1 0h1m1 0h5m2 0h1m-16 1h1m1 0h1m5 0h1m3 0h1m3 0h1m-25 1h7m2 0h2m1 0h2m2 0h1m1 0h1m1 0h1m3 0h1m-25 1h1m5 0h1m4 0h1m1 0h1m1 0h2m3 0h1m3 0h1m-25 1h1m1 0h3m1 0h1m3 0h1m2 0h8m2 0h2m-25 1h1m1 0h3m1 0h1m2 0h2m2 0h3m1 0h1m2 0h1m1 0h2m-24 1h1m1 0h3m1 0h1m1 0h1m3 0h4m3 0h3m1 0h2m-25 1h1m5 0h1m1 0h1m1 0h3m1 0h1m1 0h2m1 0h2m-21 1h7m4 0h1m4 0h3m2 0h1m2 0h1"/></svg>
     </a>
